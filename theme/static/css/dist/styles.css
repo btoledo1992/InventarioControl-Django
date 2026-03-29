@@ -1830,9 +1830,6 @@
   .mr-1 {
     margin-right: calc(var(--spacing) * 1);
   }
-  .mr-2 {
-    margin-right: calc(var(--spacing) * 2);
-  }
   .mb-1 {
     margin-bottom: calc(var(--spacing) * 1);
   }
@@ -1853,9 +1850,6 @@
   }
   .ml-2 {
     margin-left: calc(var(--spacing) * 2);
-  }
-  .ml-4 {
-    margin-left: calc(var(--spacing) * 4);
   }
   .ml-10 {
     margin-left: calc(var(--spacing) * 10);
@@ -1991,9 +1985,6 @@
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
-  .h-10 {
-    height: calc(var(--spacing) * 10);
-  }
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
@@ -2014,9 +2005,6 @@
   }
   .w-8 {
     width: calc(var(--spacing) * 8);
-  }
-  .w-10 {
-    width: calc(var(--spacing) * 10);
   }
   .w-12 {
     width: calc(var(--spacing) * 12);
@@ -2098,9 +2086,6 @@
   .gap-4 {
     gap: calc(var(--spacing) * 4);
   }
-  .gap-6 {
-    gap: calc(var(--spacing) * 6);
-  }
   .truncate {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2173,9 +2158,6 @@
   }
   .bg-primary {
     background-color: var(--color-primary);
-  }
-  .bg-warning {
-    background-color: var(--color-warning);
   }
   @layer daisyui.l1.l2 {
     .mask-squircle {
@@ -2393,9 +2375,6 @@
   .text-warning {
     color: var(--color-warning);
   }
-  .text-warning-content {
-    color: var(--color-warning-content);
-  }
   .uppercase {
     text-transform: uppercase;
   }
@@ -2521,12 +2500,6 @@
     }
   }
   @layer daisyui.l1.l2.l3 {
-    .btn-neutral {
-      --btn-color: var(--color-neutral);
-      --btn-fg: var(--color-neutral-content);
-    }
-  }
-  @layer daisyui.l1.l2.l3 {
     .btn-primary {
       --btn-color: var(--color-primary);
       --btn-fg: var(--color-primary-content);
@@ -2538,12 +2511,6 @@
       --btn-fg: var(--color-success-content);
     }
   }
-  @layer daisyui.l1.l2.l3 {
-    .btn-warning {
-      --btn-color: var(--color-warning);
-      --btn-fg: var(--color-warning-content);
-    }
-  }
   .last\:border-0:last-child {
     border-style: var(--tw-border-style);
     border-width: 0px;
@@ -2551,11 +2518,6 @@
   @media (width >= 48rem) {
     .md\:grid-cols-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (width >= 48rem) {
-    .md\:grid-cols-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   @media (width >= 48rem) {

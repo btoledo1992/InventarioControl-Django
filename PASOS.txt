@@ -668,3 +668,4 @@ COSAS A VER
 - dashboard en avisos poco stock me trae todo osea se agranda el dasboard, 
         me gustaria solo un msj general tiene productos con poco stock y q vaya a productos.
 - un boton alado de editar/borrar que diga vendido entonces yo puedo restar en el stock pero que siempre quede en historial
+- error cuando inicia el servidor de una te tiene q tirar a log, y que un tiempo de inactividad se desloge
