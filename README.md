@@ -1,0 +1,2 @@
+# InventarioControl-Django
+
