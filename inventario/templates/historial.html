@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">📋 Historial de cambios</h1>
+    <a href="/" class="btn btn-ghost">← Volver</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Acción</th>
+                        <th>Producto</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                    <tr>
+                        <td class="text-sm text-gray-500">
+                            {{ registro.fecha|date:"d/m/Y H:i" }}
+                        </td>
+                        <td>
+                            👤 {{ registro.usuario.username|default:"Eliminado" }}
+                        </td>
+                        <td>
+                            {% if registro.accion == 'crear' %}
+                                <span class="badge badge-success">➕ Creó</span>
+                            {% elif registro.accion == 'editar' %}
+                                <span class="badge badge-info">✏️ Editó</span>
+                            {% elif registro.accion == 'eliminar' %}
+                                <span class="badge badge-error">🗑️ Eliminó</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-semibold">{{ registro.producto }}</td>
+                        <td class="text-sm text-gray-500">{{ registro.descripcion }}</td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500 py-8">
+                                No hay registros todavía
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

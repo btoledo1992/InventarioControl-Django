@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">👥 Usuarios</h1>
+    <a href="/usuarios/crear/" class="btn btn-primary">+ Nuevo Usuario</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Último acceso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td class="font-semibold">
+                            👤 {{ usuario.username }}
+                            {% if usuario == request.user %}
+                                <span class="badge badge-primary ml-2">Vos</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.email|default:"Sin email" }}</td>
+                        <td>
+                            {% if usuario.is_staff %}
+                                <span class="badge badge-warning">Admin</span>
+                            {% else %}
+                                <span class="badge badge-ghost">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.last_login %}
+                                {{ usuario.last_login|date:"d/m/Y H:i" }}
+                            {% else %}
+                                Nunca
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario != request.user %}
+                                <a href="/usuarios/eliminar/{{ usuario.id }}/" class="btn btn-xs btn-error">🗑️ Eliminar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center text-gray-500">No hay usuarios</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

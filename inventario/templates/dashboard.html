@@ -2,110 +2,169 @@
 
 {% block content %}
 
-<h1 class="text-3xl font-bold mb-8">📊 Dashboard</h1>
+<!-- HEADER -->
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-medium">Panel de inventario</h1>
+        <p id="reloj" class="text-sm mt-1" style="color: var(--color-text-secondary);"></p>
+    </div>
 
-<!-- TARJETAS DE ESTADÍSTICAS -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="flex gap-2">
+        <a href="/productos/exportar/" class="btn btn-outline btn-sm">📤 Exportar Excel</a>
+        <a href="/productos/crear/" class="btn btn-primary btn-sm">+ Nuevo producto</a>
+    </div>
+</div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title text-primary">📦 Total Productos</h2>
-            <p class="text-5xl font-bold">{{ total_productos }}</p>
+<!-- TARJETAS -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5 text-center">
+            <p class="text-2xl mb-1">📦</p>
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Total de prendas</p>
+            <p class="text-4xl font-medium text-primary mt-1">{{ total_productos }}</p>
+            <p class="text-xs opacity-50 mt-2">en inventario</p>
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title text-warning">⚠️ Stock Bajo</h2>
-            <p class="text-5xl font-bold">{{ stock_bajo }}</p>
-            <p class="text-sm text-gray-500">Productos con 5 o menos unidades</p>
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5 text-center">
+            <p class="text-2xl mb-1">📊</p>
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Stock total de prendas</p>
+            <p class="text-4xl font-medium text-success mt-1">{{ stock_total }}</p>
+            <p class="text-xs opacity-50 mt-2">unidades en depósito</p>
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title text-success">🏷️ Categorías</h2>
-            <p class="text-5xl font-bold">{{ total_categorias }}</p>
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5 text-center">
+            <p class="text-2xl mb-1">⚠️</p>
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Stock bajo de prendas</p>
+            <p class="text-4xl font-medium text-warning mt-1">{{ stock_bajo }}</p>
+            <p class="text-xs opacity-50 mt-2">requieren atención</p>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5 text-center">
+            <p class="text-2xl mb-1">🏷️</p>
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Total de categorías</p>
+            <p class="text-4xl font-medium text-secondary mt-1">{{ total_categorias }}</p>
+            <p class="text-xs opacity-50 mt-2">tipos de prenda</p>
         </div>
     </div>
 
 </div>
 
-<!-- GRÁFICOS -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<!-- MEDIO: BARRAS + ALERTAS -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 
-    <!-- Gráfico por categoría -->
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title mb-4">📦 Stock por Categoría</h2>
-            <canvas id="graficoCategorias"></canvas>
+    <!-- STOCK POR CATEGORÍA -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60 mb-4 text-center">Stock por categoría</p>
+            {% for item in stock_por_categoria %}
+            <div class="flex items-center gap-3 mb-3">
+                <span class="text-sm opacity-70 w-24 truncate">{{ item.nombre }}</span>
+                <div class="flex-1 bg-base-200 rounded-full h-2">
+                    <div class="h-2 rounded-full bg-primary"
+                         style="width: {% if stock_maximo > 0 %}{% widthratio item.total stock_maximo 100 %}%{% else %}0%{% endif %}">
+                    </div>
+                </div>
+                <span class="text-sm font-medium w-8 text-right">{{ item.total }}</span>
+            </div>
+            {% empty %}
+            <p class="text-sm opacity-50">Sin datos aún</p>
+            {% endfor %}
         </div>
     </div>
 
-    <!-- Gráfico por talle -->
-    <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-            <h2 class="card-title mb-4">📐 Productos por Talle</h2>
-            <canvas id="graficoTalles"></canvas>
+    <!-- ALERTAS -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60 mb-4 text-center">Alertas de stock bajo</p>
+            {% for producto in alertas %}
+            <div class="flex items-center justify-between py-2 border-b border-base-200 last:border-0">
+                <div>
+                    <p class="text-sm font-medium">{{ producto.nombre }}</p>
+                    <p class="text-xs opacity-50">{{ producto.categoria }} · Talle {{ producto.talle }}</p>
+                </div>
+                {% if producto.stock == 0 %}
+                    <span class="badge badge-error badge-sm">Sin stock</span>
+                {% else %}
+                    <span class="badge badge-warning badge-sm">{{ producto.stock }} uds.</span>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center py-6">
+                <p class="text-3xl mb-2">✅</p>
+                <p class="text-sm text-success font-medium">Todo el stock está en orden</p>
+            </div>
+            {% endfor %}
         </div>
     </div>
 
 </div>
 
 <!-- ÚLTIMOS PRODUCTOS -->
-<div class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-        <h2 class="card-title mb-4">🕐 Últimos productos cargados</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300">
+    <div class="card-body p-5">
+        <div class="flex justify-between items-center mb-4">
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Últimos productos cargados</p>
+            <a href="/productos/" class="text-xs text-primary">Ver todos →</a>
+        </div>
         <div class="overflow-x-auto">
-            <table class="table table-zebra">
+            <table class="table table-sm">
                 <thead>
-                    <tr>
+                    <tr class="text-xs uppercase opacity-50">
                         <th>Producto</th>
                         <th>Categoría</th>
                         <th>Talle</th>
-                        <th>Color</th>
                         <th>Precio</th>
                         <th>Stock</th>
-                        <th>Acciones</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for producto in ultimos %}
                     <tr>
                         <td>
-                            {% if producto.foto %}
-                                <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2">
+                                {% if producto.foto %}
                                     <div class="avatar">
-                                        <div class="mask mask-squircle w-10 h-10">
-                                            <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" />
+                                        <div class="mask mask-squircle w-8 h-8">
+                                            <img src="{{ producto.foto.url }}" />
                                         </div>
                                     </div>
-                                    {{ producto.nombre }}
-                                </div>
-                            {% else %}
-                                {{ producto.nombre }}
-                            {% endif %}
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-lg bg-primary bg-opacity-10 flex items-center justify-center text-primary text-xs font-medium">
+                                        {{ producto.nombre|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="font-medium text-sm">{{ producto.nombre }}</span>
+                            </div>
                         </td>
-                        <td>{{ producto.categoria }}</td>
-                        <td>{{ producto.talle }}</td>
-                        <td>{{ producto.color }}</td>
-                        <td>${{ producto.precio }}</td>
+                        <td class="text-sm opacity-70">{{ producto.categoria }}</td>
+                        <td class="text-sm">{{ producto.talle }}</td>
+                        <td class="text-sm">${{ producto.precio }}</td>
                         <td>
                             {% if producto.stock <= 5 %}
-                                <span class="badge badge-warning">{{ producto.stock }}</span>
+                                <span class="badge badge-warning badge-sm">{{ producto.stock }}</span>
                             {% else %}
-                                <span class="badge badge-success">{{ producto.stock }}</span>
+                                <span class="badge badge-success badge-sm">{{ producto.stock }}</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="/productos/editar/{{ producto.id }}/" class="btn btn-xs btn-info">✏️</a>
-                            <a href="/productos/eliminar/{{ producto.id }}/" class="btn btn-xs btn-error">🗑️</a>
+                            <a href="/productos/editar/{{ producto.id }}/" class="text-xs text-primary">Editar</a>
                         </td>
                     </tr>
                     {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center text-gray-500">No hay productos cargados aún</td>
-                        </tr>
+                    <tr>
+                        <td colspan="6" class="text-center opacity-50 py-6">
+                            Sin productos aún.
+                            <a href="/productos/crear/" class="text-primary">Cargá el primero</a>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -113,51 +172,32 @@
     </div>
 </div>
 
-<!-- CHART.JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Gráfico por categoría
-    const ctxCat = document.getElementById('graficoCategorias').getContext('2d');
-    new Chart(ctxCat, {
-        type: 'bar',
-        data: {
-            labels: {{ labels_cat|safe }},
-            datasets: [{
-                label: 'Stock total',
-                data: {{ data_cat|safe }},
-                backgroundColor: [
-                    '#570df8', '#f000b8', '#37cdbe', '#3d4451',
-                    '#ff6384', '#36a2eb', '#ffcd56'
-                ],
-                borderRadius: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
+    function actualizarReloj() {
+        const ahora = new Date();
 
-    // Gráfico por talle
-    const ctxTalle = document.getElementById('graficoTalles').getContext('2d');
-    new Chart(ctxTalle, {
-        type: 'doughnut',
-        data: {
-            labels: {{ labels_talles|safe }},
-            datasets: [{
-                data: {{ data_talles|safe }},
-                backgroundColor: [
-                    '#570df8', '#f000b8', '#37cdbe',
-                    '#3d4451', '#ff6384', '#36a2eb'
-                ],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+        const opciones = {
+            timeZone: "America/Argentina/Buenos_Aires",
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        };
+
+        const formato = new Intl.DateTimeFormat("es-AR", opciones).format(ahora);
+
+        document.getElementById("reloj").textContent = formato;
+    }
+
+    // actualizar cada segundo
+    setInterval(actualizarReloj, 1000);
+
+    // ejecutar inmediatamente
+    actualizarReloj();
 </script>
 
 {% endblock %}

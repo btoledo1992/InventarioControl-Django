@@ -10,21 +10,72 @@
     </div>
 </div>
 
-<!-- BUSCADOR -->
+<!-- FILTROS -->
 <div class="card bg-base-100 shadow-xl mb-6">
     <div class="card-body">
+        <h2 class="card-title text-sm mb-4">🔍 Filtros</h2>
         <form method="GET">
-            <div class="flex gap-4">
-                <input 
-                    type="text" 
-                    name="q" 
-                    value="{{ request.GET.q }}"
-                    placeholder="Buscar producto..." 
-                    class="input input-bordered flex-1"
-                />
-                <button type="submit" class="btn btn-primary">🔍 Buscar</button>
-                <a href="/productos/" class="btn btn-ghost">Limpiar</a>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <!-- BUSCADOR -->
+                <div class="form-control">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ filtros.q }}"
+                        placeholder="Buscar producto..."
+                        class="input input-bordered w-full"
+                    />
+                </div>
+
+                <!-- CATEGORÍA -->
+                <div class="form-control">
+                    <select name="categoria" class="select select-bordered w-full">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat.id }}"
+                                {% if filtros.categoria == cat.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- TALLE -->
+                <div class="form-control">
+                    <select name="talle" class="select select-bordered w-full">
+                        <option value="">Todos los talles</option>
+                        {% for value, label in talles %}
+                            <option value="{{ value }}"
+                                {% if filtros.talle == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- STOCK BAJO -->
+                <div class="form-control justify-center">
+                    <label class="label cursor-pointer gap-3">
+                        <input
+                            type="checkbox"
+                            name="stock_bajo"
+                            value="1"
+                            class="checkbox checkbox-warning"
+                            {% if filtros.stock_bajo %}checked{% endif %}
+                        />
+                        <span class="label-text">⚠️ Solo stock bajo</span>
+                    </label>
+                </div>
+
             </div>
+
+            <!-- BOTONES -->
+            <div class="flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">🔍 Filtrar</button>
+                <a href="/productos/" class="btn btn-ghost">✖ Limpiar</a>
+            </div>
+
         </form>
     </div>
 </div>
@@ -32,6 +83,13 @@
 <!-- TABLA -->
 <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
+
+        <!-- CONTADOR -->
+        <p class="text-sm text-gray-500 mb-4">
+            Mostrando <strong>{{ productos.paginator.count }}</strong> producto(s) en total
+            — página <strong>{{ productos.number }}</strong> de <strong>{{ productos.paginator.num_pages }}</strong>
+        </p>
+
         <div class="overflow-x-auto">
             <table class="table table-zebra">
                 <thead>
@@ -84,15 +142,51 @@
                     {% empty %}
                         <tr>
                             <td colspan="8" class="text-center text-gray-500 py-8">
-                                No hay productos cargados. 
-                                <a href="/productos/crear/" class="link link-primary">Cargá el primero</a>
+                                No se encontraron productos con esos filtros.
+                                <a href="/productos/" class="link link-primary">Limpiar filtros</a>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <!-- PAGINACIÓN -->
+        {% if productos.has_other_pages %}
+        <div class="flex justify-center mt-6">
+            <div class="join">
+
+                {% if productos.has_previous %}
+                    <a href="?page={{ productos.previous_page_number }}&q={{ filtros.q }}&categoria={{ filtros.categoria }}&talle={{ filtros.talle }}&stock_bajo={{ filtros.stock_bajo }}"
+                    class="join-item btn btn-sm">«</a>
+                {% else %}
+                    <button class="join-item btn btn-sm btn-disabled">«</button>
+                {% endif %}
+
+                {% for num in productos.paginator.page_range %}
+                    {% if productos.number == num %}
+                        <button class="join-item btn btn-sm btn-primary">{{ num }}</button>
+                    {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                        <a href="?page={{ num }}&q={{ filtros.q }}&categoria={{ filtros.categoria }}&talle={{ filtros.talle }}&stock_bajo={{ filtros.stock_bajo }}"
+                        class="join-item btn btn-sm">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if productos.has_next %}
+                    <a href="?page={{ productos.next_page_number }}&q={{ filtros.q }}&categoria={{ filtros.categoria }}&talle={{ filtros.talle }}&stock_bajo={{ filtros.stock_bajo }}"
+                    class="join-item btn btn-sm">»</a>
+                {% else %}
+                    <button class="join-item btn btn-sm btn-disabled">»</button>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <p class="text-center text-xs opacity-50 mt-2">
+            Página {{ productos.number }} de {{ productos.paginator.num_pages }}
+            — {{ productos.paginator.count }} productos en total
+        </p>
+        {% endif %}
+
+    {% endblock %}
     </div>
 </div>
-
-{% endblock %}

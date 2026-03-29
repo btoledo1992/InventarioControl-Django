@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">{{ titulo }}</h1>
+    <a href="/usuarios/" class="btn btn-ghost">← Volver</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- USUARIO -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Nombre de usuario</span>
+                </label>
+                <input
+                    type="text"
+                    name="username"
+                    value="{{ form.username.value|default:'' }}"
+                    placeholder="Ej: juan123"
+                    class="input input-bordered w-full"
+                />
+                {% if form.username.errors %}
+                    <span class="text-error text-sm mt-1">{{ form.username.errors }}</span>
+                {% endif %}
+            </div>
+
+            <!-- EMAIL -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Email (opcional)</span>
+                </label>
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ form.email.value|default:'' }}"
+                    placeholder="Ej: juan@email.com"
+                    class="input input-bordered w-full"
+                />
+            </div>
+
+            <!-- CONTRASEÑA -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Contraseña</span>
+                </label>
+                <input
+                    type="password"
+                    name="password1"
+                    placeholder="Contraseña"
+                    class="input input-bordered w-full"
+                />
+                {% if form.password1.errors %}
+                    <span class="text-error text-sm mt-1">{{ form.password1.errors }}</span>
+                {% endif %}
+            </div>
+
+            <!-- REPETIR CONTRASEÑA -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Repetir contraseña</span>
+                </label>
+                <input
+                    type="password"
+                    name="password2"
+                    placeholder="Repetir contraseña"
+                    class="input input-bordered w-full"
+                />
+                {% if form.password2.errors %}
+                    <span class="text-error text-sm mt-1">{{ form.password2.errors }}</span>
+                {% endif %}
+            </div>
+
+            <!-- ROL -->
+            <div class="form-control mb-6">
+                <label class="label cursor-pointer justify-start gap-4">
+                    <input
+                        type="checkbox"
+                        name="is_staff"
+                        class="checkbox checkbox-primary"
+                        {% if form.is_staff.value %}checked{% endif %}
+                    />
+                    <span class="label-text font-semibold">Es administrador</span>
+                </label>
+                <p class="text-sm text-gray-500 ml-10">
+                    Los administradores pueden gestionar usuarios
+                </p>
+            </div>
+
+            <!-- ERRORES GENERALES -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-error mb-4">
+                    <span>{{ form.non_field_errors }}</span>
+                </div>
+            {% endif %}
+
+            <!-- BOTONES -->
+            <div class="flex gap-4">
+                <button type="submit" class="btn btn-primary flex-1">
+                    💾 Guardar
+                </button>
+                <a href="/usuarios/" class="btn btn-ghost flex-1">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

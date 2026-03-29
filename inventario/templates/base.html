@@ -1,6 +1,6 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" id="html-root" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 
     <!-- NAVBAR -->
     <div class="navbar bg-primary text-primary-content shadow-lg">
-        
+
         <!-- MENÚ HAMBURGUESA (solo mobile) -->
         <div class="flex-none lg:hidden">
             <label for="mobile-drawer" class="btn btn-square btn-ghost">
@@ -26,14 +26,22 @@
             <a href="/" class="btn btn-ghost text-xl">👕 StockApp</a>
         </div>
 
-        <!-- MENÚ DESKTOP (oculto en mobile) -->
-        <div class="hidden lg:flex">
+        <!-- MENÚ DESKTOP -->
+        <div class="hidden lg:flex items-center">
             <ul class="menu menu-horizontal px-1">
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/productos/">Productos</a></li>
-                <li><a href="/productos/crear/">+ Nuevo</a></li>
+                {% if request.user.is_staff %}
+                    <li><a href="/usuarios/">👥 Usuarios</a></li>
+                    <li><a href="/historial/">📋 Historial</a></li>
+                {% endif %}
             </ul>
-            <div class="dropdown dropdown-end ml-4">
+            <!-- MODO OSCURO -->
+            <button id="theme-toggle" onclick="toggleTheme()" class="btn btn-ghost btn-circle mr-1">
+                <span id="theme-icon">🌙</span>
+            </button>
+
+            <div class="dropdown dropdown-end ml-2">
                 <label tabindex="0" class="btn btn-ghost">
                     👤 {{ request.user.username }}
                 </label>
@@ -76,12 +84,44 @@
                 <li class="menu-title text-lg font-bold mb-2">👕 StockApp</li>
                 <li><a href="/">🏠 Dashboard</a></li>
                 <li><a href="/productos/">📦 Productos</a></li>
-                <li><a href="/productos/crear/">➕ Nuevo Producto</a></li>
+                {% if request.user.is_staff %}
+                    <li><a href="/usuarios/">👥 Usuarios</a></li>
+                    <li><a href="/historial/">📋 Historial</a></li>
+                {% endif %}
+                <li>
+                    <a onclick="toggleTheme()" class="cursor-pointer">
+                        <span id="theme-icon-mobile">🌙</span> Cambiar tema
+                    </a>
+                </li>
                 <div class="divider"></div>
                 <li><a href="/logout/">🚪 Cerrar sesión</a></li>
             </ul>
         </div>
     </div>
+
+<script>
+    // Cargar tema guardado
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.getElementById('html-root').setAttribute('data-theme', savedTheme);
+    updateIcons(savedTheme);
+
+    function toggleTheme() {
+        const html = document.getElementById('html-root');
+        const current = html.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        updateIcons(next);
+    }
+
+    function updateIcons(theme) {
+        const icon = document.getElementById('theme-icon');
+        const iconMobile = document.getElementById('theme-icon-mobile');
+        const emoji = theme === 'light' ? '🌙' : '☀️';
+        if (icon) icon.textContent = emoji;
+        if (iconMobile) iconMobile.textContent = emoji;
+    }
+</script>
 
 </body>
 </html>

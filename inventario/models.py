@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -37,3 +38,25 @@ class Producto(models.Model):
     class Meta:
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
+
+class Historial(models.Model):
+
+    ACCIONES = [
+        ('crear',    '➕ Creó'),
+        ('editar',   '✏️ Editó'),
+        ('eliminar', '🗑️ Eliminó'),
+    ]
+
+    usuario      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    accion       = models.CharField(max_length=10, choices=ACCIONES)
+    producto     = models.CharField(max_length=200)
+    descripcion  = models.TextField(blank=True)
+    fecha        = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario} - {self.accion} - {self.producto}"
+
+    class Meta:
+        verbose_name = "Historial"
+        verbose_name_plural = "Historial"
+        ordering = ['-fecha']
