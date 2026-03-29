@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body text-center">
+            
+            <h2 class="text-3xl mb-2">🗑️</h2>
+            <h3 class="card-title justify-center text-xl mb-2">¿Eliminar producto?</h3>
+            
+            <p class="text-gray-500 mb-6">
+                Estás por eliminar <strong>{{ producto.nombre }}</strong>. 
+                Esta acción no se puede deshacer.
+            </p>
+
+            {% if producto.foto %}
+                <div class="avatar justify-center mb-4">
+                    <div class="w-24 rounded-xl">
+                        <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" />
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="bg-base-200 rounded-lg p-4 mb-6 text-left">
+                <p><strong>Nombre:</strong> {{ producto.nombre }}</p>
+                <p><strong>Categoría:</strong> {{ producto.categoria }}</p>
+                <p><strong>Talle:</strong> {{ producto.talle }}</p>
+                <p><strong>Stock:</strong> {{ producto.stock }}</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="flex gap-4">
+                    <button type="submit" class="btn btn-error flex-1">
+                        🗑️ Sí, eliminar
+                    </button>
+                    <a href="/productos/" class="btn btn-ghost flex-1">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

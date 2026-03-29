@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="text-3xl font-bold mb-8">📊 Dashboard</h1>
+
+<!-- TARJETAS DE ESTADÍSTICAS -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-primary">📦 Total Productos</h2>
+            <p class="text-5xl font-bold">{{ total_productos }}</p>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-warning">⚠️ Stock Bajo</h2>
+            <p class="text-5xl font-bold">{{ stock_bajo }}</p>
+            <p class="text-sm text-gray-500">Productos con 5 o menos unidades</p>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-success">🏷️ Categorías</h2>
+            <p class="text-5xl font-bold">{{ total_categorias }}</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ÚLTIMOS PRODUCTOS -->
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <h2 class="card-title mb-4">🕐 Últimos productos cargados</h2>
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Talle</th>
+                        <th>Color</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in ultimos %}
+                    <tr>
+                        <td>
+                            {% if producto.foto %}
+                                <div class="flex items-center gap-3">
+                                    <div class="avatar">
+                                        <div class="mask mask-squircle w-10 h-10">
+                                            <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" />
+                                        </div>
+                                    </div>
+                                    {{ producto.nombre }}
+                                </div>
+                            {% else %}
+                                {{ producto.nombre }}
+                            {% endif %}
+                        </td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>{{ producto.talle }}</td>
+                        <td>{{ producto.color }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>
+                            {% if producto.stock <= 5 %}
+                                <span class="badge badge-warning">{{ producto.stock }}</span>
+                            {% else %}
+                                <span class="badge badge-success">{{ producto.stock }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/productos/editar/{{ producto.id }}/" class="btn btn-xs btn-info">✏️</a>
+                            <a href="/productos/eliminar/{{ producto.id }}/" class="btn btn-xs btn-error">🗑️</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-gray-500">No hay productos cargados aún</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

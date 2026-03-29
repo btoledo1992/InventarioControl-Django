@@ -1,0 +1,44 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Stock</title>
+    {% tailwind_css %}
+</head>
+<body class="bg-base-200 min-h-screen">
+
+    <!-- NAVBAR -->
+    <div class="navbar bg-primary text-primary-content shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost text-xl">👕 StockApp</a>
+        </div>
+        <div class="flex-none">
+            <ul class="menu menu-horizontal px-1">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/productos/">Productos</a></li>
+                <li><a href="/productos/crear/">+ Nuevo</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- MENSAJES -->
+    {% if messages %}
+        <div class="container mx-auto px-4 pt-4">
+            {% for message in messages %}
+                <div class="alert alert-success mb-2">
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- CONTENIDO -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

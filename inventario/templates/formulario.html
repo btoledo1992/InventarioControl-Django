@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">{{ titulo }}</h1>
+    <a href="/productos/" class="btn btn-ghost">← Volver</a>
+</div>
+
+<div class="card bg-base-100 shadow-xl max-w-2xl mx-auto">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- NOMBRE -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Nombre del producto</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="nombre"
+                    value="{{ form.nombre.value|default:'' }}"
+                    placeholder="Ej: Remera básica"
+                    class="input input-bordered w-full"
+                />
+            </div>
+
+            <!-- CATEGORÍA -->
+            <div class="form-control mb-4">
+                <label class="label">
+                    <span class="label-text font-semibold">Categoría</span>
+                </label>
+                <select name="categoria" class="select select-bordered w-full">
+                    <option value="">-- Elegí una categoría --</option>
+                    {% for categoria in form.categoria.field.queryset %}
+                        <option value="{{ categoria.id }}"
+                            {% if form.categoria.value == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- TALLE Y COLOR -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Talle</span>
+                    </label>
+                    <select name="talle" class="select select-bordered w-full">
+                        {% for value, label in form.talle.field.choices %}
+                            <option value="{{ value }}"
+                                {% if form.talle.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Color</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="color"
+                        value="{{ form.color.value|default:'' }}"
+                        placeholder="Ej: Rojo"
+                        class="input input-bordered w-full"
+                    />
+                </div>
+            </div>
+
+            <!-- PRECIO Y STOCK -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Precio</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        name="precio"
+                        value="{{ form.precio.value|default:'' }}"
+                        placeholder="Ej: 5000"
+                        class="input input-bordered w-full"
+                        step="0.01"
+                    />
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Stock</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        name="stock"
+                        value="{{ form.stock.value|default:'' }}"
+                        placeholder="Ej: 25"
+                        class="input input-bordered w-full"
+                    />
+                </div>
+            </div>
+
+            <!-- FOTO -->
+            <div class="form-control mb-6">
+                <label class="label">
+                    <span class="label-text font-semibold">Foto del producto</span>
+                </label>
+                {% if form.instance.foto %}
+                    <div class="mb-2">
+                        <img src="{{ form.instance.foto.url }}" class="w-24 h-24 object-cover rounded-lg" />
+                        <p class="text-sm text-gray-500 mt-1">Foto actual</p>
+                    </div>
+                {% endif %}
+                <input 
+                    type="file" 
+                    name="foto"
+                    class="file-input file-input-bordered w-full"
+                    accept="image/*"
+                />
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex gap-4">
+                <button type="submit" class="btn btn-primary flex-1">
+                    💾 Guardar
+                </button>
+                <a href="/productos/" class="btn btn-ghost flex-1">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

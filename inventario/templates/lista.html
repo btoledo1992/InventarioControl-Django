@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold">📦 Productos</h1>
+    <a href="/productos/crear/" class="btn btn-primary">+ Nuevo Producto</a>
+</div>
+
+<!-- BUSCADOR -->
+<div class="card bg-base-100 shadow-xl mb-6">
+    <div class="card-body">
+        <form method="GET">
+            <div class="flex gap-4">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ request.GET.q }}"
+                    placeholder="Buscar producto..." 
+                    class="input input-bordered flex-1"
+                />
+                <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+                <a href="/productos/" class="btn btn-ghost">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TABLA -->
+<div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Talle</th>
+                        <th>Color</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>
+                            {% if producto.foto %}
+                                <div class="avatar">
+                                    <div class="mask mask-squircle w-12 h-12">
+                                        <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" />
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="avatar placeholder">
+                                    <div class="bg-neutral text-neutral-content mask mask-squircle w-12 h-12">
+                                        <span>👕</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="font-semibold">{{ producto.nombre }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>{{ producto.talle }}</td>
+                        <td>{{ producto.color }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>
+                            {% if producto.stock <= 5 %}
+                                <span class="badge badge-warning">{{ producto.stock }}</span>
+                            {% else %}
+                                <span class="badge badge-success">{{ producto.stock }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="flex gap-2">
+                            <a href="/productos/editar/{{ producto.id }}/" class="btn btn-xs btn-info">✏️ Editar</a>
+                            <a href="/productos/eliminar/{{ producto.id }}/" class="btn btn-xs btn-error">🗑️ Borrar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-gray-500 py-8">
+                                No hay productos cargados. 
+                                <a href="/productos/crear/" class="link link-primary">Cargá el primero</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
