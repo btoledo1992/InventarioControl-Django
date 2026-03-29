@@ -31,6 +31,27 @@
 
 </div>
 
+<!-- GRÁFICOS -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+    <!-- Gráfico por categoría -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title mb-4">📦 Stock por Categoría</h2>
+            <canvas id="graficoCategorias"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico por talle -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title mb-4">📐 Productos por Talle</h2>
+            <canvas id="graficoTalles"></canvas>
+        </div>
+    </div>
+
+</div>
+
 <!-- ÚLTIMOS PRODUCTOS -->
 <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
@@ -91,5 +112,52 @@
         </div>
     </div>
 </div>
+
+<!-- CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico por categoría
+    const ctxCat = document.getElementById('graficoCategorias').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_cat|safe }},
+            datasets: [{
+                label: 'Stock total',
+                data: {{ data_cat|safe }},
+                backgroundColor: [
+                    '#570df8', '#f000b8', '#37cdbe', '#3d4451',
+                    '#ff6384', '#36a2eb', '#ffcd56'
+                ],
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Gráfico por talle
+    const ctxTalle = document.getElementById('graficoTalles').getContext('2d');
+    new Chart(ctxTalle, {
+        type: 'doughnut',
+        data: {
+            labels: {{ labels_talles|safe }},
+            datasets: [{
+                data: {{ data_talles|safe }},
+                backgroundColor: [
+                    '#570df8', '#f000b8', '#37cdbe',
+                    '#3d4451', '#ff6384', '#36a2eb'
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
 
 {% endblock %}

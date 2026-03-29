@@ -17,13 +17,16 @@
                 <label class="label">
                     <span class="label-text font-semibold">Nombre del producto</span>
                 </label>
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     name="nombre"
                     value="{{ form.nombre.value|default:'' }}"
                     placeholder="Ej: Remera básica"
                     class="input input-bordered w-full"
                 />
+                {% if form.nombre.errors %}
+                    <span class="text-error text-sm mt-1">{{ form.nombre.errors }}</span>
+                {% endif %}
             </div>
 
             <!-- CATEGORÍA -->
@@ -35,11 +38,14 @@
                     <option value="">-- Elegí una categoría --</option>
                     {% for categoria in form.categoria.field.queryset %}
                         <option value="{{ categoria.id }}"
-                            {% if form.categoria.value == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {% if form.categoria.value|stringformat:"s" == categoria.id|stringformat:"s" %}selected{% endif %}>
                             {{ categoria.nombre }}
                         </option>
                     {% endfor %}
                 </select>
+                {% if form.categoria.errors %}
+                    <span class="text-error text-sm mt-1">{{ form.categoria.errors }}</span>
+                {% endif %}
             </div>
 
             <!-- TALLE Y COLOR -->
@@ -62,8 +68,8 @@
                     <label class="label">
                         <span class="label-text font-semibold">Color</span>
                     </label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         name="color"
                         value="{{ form.color.value|default:'' }}"
                         placeholder="Ej: Rojo"
@@ -78,8 +84,8 @@
                     <label class="label">
                         <span class="label-text font-semibold">Precio</span>
                     </label>
-                    <input 
-                        type="number" 
+                    <input
+                        type="number"
                         name="precio"
                         value="{{ form.precio.value|default:'' }}"
                         placeholder="Ej: 5000"
@@ -92,8 +98,8 @@
                     <label class="label">
                         <span class="label-text font-semibold">Stock</span>
                     </label>
-                    <input 
-                        type="number" 
+                    <input
+                        type="number"
                         name="stock"
                         value="{{ form.stock.value|default:'' }}"
                         placeholder="Ej: 25"
@@ -108,18 +114,28 @@
                     <span class="label-text font-semibold">Foto del producto</span>
                 </label>
                 {% if form.instance.foto %}
-                    <div class="mb-2">
+                    <div class="mb-2 flex items-center gap-4">
                         <img src="{{ form.instance.foto.url }}" class="w-24 h-24 object-cover rounded-lg" />
-                        <p class="text-sm text-gray-500 mt-1">Foto actual</p>
+                        <div>
+                            <p class="text-sm text-gray-500">Foto actual</p>
+                            <p class="text-xs text-gray-400">Subí una nueva para reemplazarla</p>
+                        </div>
                     </div>
                 {% endif %}
-                <input 
-                    type="file" 
+                <input
+                    type="file"
                     name="foto"
                     class="file-input file-input-bordered w-full"
                     accept="image/*"
                 />
             </div>
+
+            <!-- ERRORES GENERALES -->
+            {% if form.errors %}
+                <div class="alert alert-error mb-4">
+                    <span>Por favor corregí los errores del formulario</span>
+                </div>
+            {% endif %}
 
             <!-- BOTONES -->
             <div class="flex gap-4">

@@ -1,0 +1,65 @@
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — StockApp</title>
+    {% tailwind_css %}
+</head>
+<body class="bg-base-200 min-h-screen flex items-center justify-center">
+
+    <div class="card bg-base-100 shadow-xl w-full max-w-sm">
+        <div class="card-body">
+
+            <div class="text-center mb-6">
+                <h1 class="text-4xl mb-2">👕</h1>
+                <h2 class="text-2xl font-bold">StockApp</h2>
+                <p class="text-gray-500 text-sm">Control de inventario</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-error mb-4">
+                    <span>Usuario o contraseña incorrectos</span>
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Usuario</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="username"
+                        placeholder="Tu usuario"
+                        class="input input-bordered w-full"
+                        autofocus
+                    />
+                </div>
+
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Contraseña</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        name="password"
+                        placeholder="Tu contraseña"
+                        class="input input-bordered w-full"
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    🔐 Ingresar
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>

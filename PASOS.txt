@@ -1,0 +1,408 @@
+================================================================
+        STOCKAPP — GUÍA COMPLETA DE INSTALACIÓN Y CONFIGURACIÓN
+        Control de Stock para Empresa de Ropa con Django + MySQL
+================================================================
+
+STACK TECNOLÓGICO
+-----------------
+- Python 3.12
+- Django 4.2.20
+- MySQL (MariaDB 10.4 via XAMPP)
+- Tailwind CSS v4 + DaisyUI
+- Node.js LTS
+- GitHub Desktop
+
+
+================================================================
+ETAPA 1 — HERRAMIENTAS NECESARIAS
+================================================================
+
+1. Visual Studio Code
+   → https://code.visualstudio.com
+
+2. Python 3.12
+   → https://www.python.org/downloads/
+   ⚠️ IMPORTANTE: tildar "Add Python to PATH" durante la instalación
+
+3. GitHub Desktop
+   → https://desktop.github.com
+
+4. XAMPP (versión más reciente)
+   → https://www.apachefriends.org
+   ⚠️ IMPORTANTE: usar versión reciente para tener MariaDB 10.6+
+   NOTA: Si tenés MariaDB 10.4 usar Django 4.2.20 (compatible)
+
+5. Node.js LTS
+   → https://nodejs.org
+   ⚠️ IMPORTANTE: tildar "Add to PATH" durante la instalación
+   Si "where npm" no funciona, buscar la ruta con:
+       Get-Command node
+   Y agregar en settings.py:
+       NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+
+
+================================================================
+ETAPA 2 — CONFIGURAR GITHUB
+================================================================
+
+1. Crear cuenta en https://github.com
+2. Abrir GitHub Desktop → Sign in
+3. Crear nuevo repositorio:
+   - Name: InventarioControl-Django
+   - ☑ Initialize with README
+4. Publicar → "Publish repository"
+
+
+================================================================
+ETAPA 3 — CREAR BASE DE DATOS EN MYSQL
+================================================================
+
+1. Abrir XAMPP Control Panel
+2. Iniciar Apache y MySQL (tienen que ponerse en verde)
+3. Entrar a http://localhost/phpmyadmin
+4. Clic en "Nueva"
+5. Nombre: stockapp_db
+6. Cotejamiento: utf8mb4_unicode_ci
+7. Clic en "Crear"
+
+
+================================================================
+ETAPA 4 — CREAR EL PROYECTO
+================================================================
+
+1. Abrir la carpeta del proyecto en VSCode
+2. Abrir terminal: Ctrl + Ñ
+
+-- Crear entorno virtual --
+python -m venv .venv
+
+-- Activar entorno virtual --
+.venv\Scripts\activate
+
+-- Instalar paquetes --
+pip install django==4.2.20 mysqlclient django-tailwind pillow
+
+-- Crear proyecto Django --
+django-admin startproject stockapp .
+
+-- Crear app --
+python manage.py startapp inventario
+
+
+================================================================
+ETAPA 5 — ARCHIVO .gitignore
+================================================================
+
+Crear archivo .gitignore en la raíz del proyecto con:
+
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3
+media/
+.env
+
+
+================================================================
+ETAPA 6 — CONFIGURAR settings.py
+================================================================
+
+Archivo: stockapp/settings.py
+
+-- INSTALLED_APPS --
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'tailwind',
+    'theme',
+    'inventario',
+]
+
+-- BASE DE DATOS --
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'stockapp_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+
+-- TEMPLATES --
+TEMPLATES = [
+    {
+        ...
+        'DIRS': [BASE_DIR / 'inventario' / 'templates'],
+        ...
+    }
+]
+
+-- AL FINAL DEL ARCHIVO --
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = ['127.0.0.1']
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+================================================================
+ETAPA 7 — MODELOS (inventario/models.py)
+================================================================
+
+from django.db import models
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Categoría"
+        verbose_name_plural = "Categorías"
+
+
+class Producto(models.Model):
+
+    TALLES = [
+        ('XS', 'XS'),
+        ('S', 'S'),
+        ('M', 'M'),
+        ('L', 'L'),
+        ('XL', 'XL'),
+        ('XXL', 'XXL'),
+    ]
+
+    nombre    = models.CharField(max_length=200)
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
+    talle     = models.CharField(max_length=10, choices=TALLES)
+    color     = models.CharField(max_length=50)
+    precio    = models.DecimalField(max_digits=10, decimal_places=2)
+    stock     = models.PositiveIntegerField(default=0)
+    foto      = models.ImageField(upload_to='productos/', blank=True, null=True)
+    creado    = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.talle} - {self.color}"
+
+    class Meta:
+        verbose_name = "Producto"
+        verbose_name_plural = "Productos"
+
+
+================================================================
+ETAPA 8 — ADMIN (inventario/admin.py)
+================================================================
+
+from django.contrib import admin
+from .models import Categoria, Producto
+
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ['nombre']
+
+@admin.register(Producto)
+class ProductoAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'categoria', 'talle', 'color', 'precio', 'stock']
+    list_filter  = ['categoria', 'talle']
+    search_fields = ['nombre', 'color']
+
+
+================================================================
+ETAPA 9 — FORMS (inventario/forms.py)
+================================================================
+
+from django import forms
+from .models import Producto
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ['nombre', 'categoria', 'talle', 'color', 'precio', 'stock', 'foto']
+
+
+================================================================
+ETAPA 10 — VISTAS (inventario/views.py)
+================================================================
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Producto, Categoria
+from .forms import ProductoForm
+
+def dashboard(request):
+    total_productos  = Producto.objects.count()
+    stock_bajo       = Producto.objects.filter(stock__lte=5).count()
+    total_categorias = Categoria.objects.count()
+    ultimos          = Producto.objects.order_by('-creado')[:5]
+    return render(request, 'dashboard.html', {
+        'total_productos':  total_productos,
+        'stock_bajo':       stock_bajo,
+        'total_categorias': total_categorias,
+        'ultimos':          ultimos,
+    })
+
+def lista_productos(request):
+    q = request.GET.get('q', '')
+    productos = Producto.objects.select_related('categoria').all()
+    if q:
+        productos = productos.filter(nombre__icontains=q)
+    return render(request, 'lista.html', {'productos': productos})
+
+def crear_producto(request):
+    form = ProductoForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, '✅ Producto creado correctamente')
+        return redirect('lista_productos')
+    return render(request, 'formulario.html', {'form': form, 'titulo': '➕ Nuevo Producto'})
+
+def editar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
+    if form.is_valid():
+        form.save()
+        messages.success(request, '✅ Producto actualizado correctamente')
+        return redirect('lista_productos')
+    return render(request, 'formulario.html', {'form': form, 'titulo': '✏️ Editar Producto'})
+
+def eliminar_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        producto.delete()
+        messages.success(request, '🗑️ Producto eliminado correctamente')
+        return redirect('lista_productos')
+    return render(request, 'confirmar_eliminar.html', {'producto': producto})
+
+
+================================================================
+ETAPA 11 — URLS DE LA APP (inventario/urls.py)
+================================================================
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('',                             views.dashboard,         name='dashboard'),
+    path('productos/',                   views.lista_productos,   name='lista_productos'),
+    path('productos/crear/',             views.crear_producto,    name='crear_producto'),
+    path('productos/editar/<int:pk>/',   views.editar_producto,   name='editar_producto'),
+    path('productos/eliminar/<int:pk>/', views.eliminar_producto, name='eliminar_producto'),
+]
+
+
+================================================================
+ETAPA 12 — URLS PRINCIPAL (stockapp/urls.py)
+================================================================
+
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('inventario.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+================================================================
+ETAPA 13 — TEMPLATES HTML
+================================================================
+
+Estructura de carpetas:
+inventario/
+└── templates/
+    ├── base.html
+    ├── dashboard.html
+    ├── lista.html
+    ├── formulario.html
+    └── confirmar_eliminar.html
+
+(Ver archivos HTML completos en el proyecto)
+
+
+================================================================
+ETAPA 14 — CONFIGURAR TAILWIND
+================================================================
+
+-- Iniciar Tailwind --
+python manage.py tailwind init
+→ Nombre: theme
+→ Opción: 2 (Tailwind v4 Full)
+→ DaisyUI: y
+
+-- Instalar dependencias --
+python manage.py tailwind install
+
+
+================================================================
+ETAPA 15 — MIGRACIONES Y SUPERUSUARIO
+================================================================
+
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+
+
+================================================================
+ETAPA 16 — CORRER EL PROYECTO
+================================================================
+
+⚠️ Necesitás DOS terminales abiertas al mismo tiempo:
+
+-- Terminal 1: Tailwind --
+.venv\Scripts\activate
+python manage.py tailwind start
+
+-- Terminal 2: Django --
+.venv\Scripts\activate
+python manage.py runserver
+
+-- Abrir en el navegador --
+http://127.0.0.1:8000          → Dashboard
+http://127.0.0.1:8000/admin    → Panel de administración
+http://127.0.0.1:8000/productos/ → Lista de productos
+
+
+================================================================
+ERRORES COMUNES Y SOLUCIONES
+================================================================
+
+ERROR: django.db.utils.NotSupportedError: MariaDB 10.6 or later is required
+SOLUCIÓN: Usar Django 4.2.20
+    pip uninstall django
+    pip install django==4.2.20
+
+ERROR: CommandError: node.js and/or npm is not installed
+SOLUCIÓN: Agregar en settings.py:
+    NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+    (buscar ruta con: Get-Command node)
+
+ERROR: 'where npm' no devuelve nada
+SOLUCIÓN: Cerrar y reabrir VSCode después de instalar Node.js
+
+
+================================================================
+PRÓXIMAS MEJORAS PLANEADAS
+================================================================
+
+🔐 Login y logout de usuarios
+📊 Gráficos en el dashboard
+📱 Mejor diseño mobile
+📤 Exportar productos a Excel
+
+
+================================================================
+FIN DE LA GUÍA
+================================================================
