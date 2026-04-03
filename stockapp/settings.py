@@ -120,14 +120,10 @@ AUTH_PASSWORD_VALIDATORS = [
 #LANGUAGE_CODE = 'en-us'
 #TIME_ZONE = 'UTC'
 
-LANGUAGE_CODE = 'es'
-
+LANGUAGE_CODE = 'es-ar'
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
@@ -144,3 +140,5 @@ NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
+SESSION_COOKIE_AGE = 300  # 5 minutos en segundos
+SESSION_SAVE_EVERY_REQUEST = True  # Reinicia el timer con cada acción

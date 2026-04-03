@@ -2,16 +2,21 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.db import models
-from .models import Producto, Categoria
-from .forms import ProductoForm
-from django.http import HttpResponse
-from openpyxl.styles import Font, PatternFill, Alignment
 from django.contrib.auth.models import User
-from .forms import ProductoForm, UsuarioForm
-from .models import Producto, Categoria, Historial
 from django.core.paginator import Paginator
+from django.http import HttpResponse
+from django.db import models
+from django.utils import timezone
+from django.utils.timezone import localtime
+from datetime import timedelta
+from .models import Producto, Categoria, Historial
+from .forms import ProductoForm, UsuarioForm
+from openpyxl.styles import Font, PatternFill, Alignment
+import re
 import openpyxl
+from PIL import Image as PILImage
+import io
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # ── LOGIN ──────────────────────────────────────────
 def login_view(request):
@@ -36,8 +41,10 @@ def logout_view(request):
 # ── DASHBOARD ──────────────────────────────────────
 @login_required(login_url='login')
 def dashboard(request):
-    import json
     from django.db.models import Sum
+    from django.utils import timezone
+    from datetime import timedelta
+    import re
 
     total_productos  = Producto.objects.count()
     stock_total      = Producto.objects.aggregate(total=Sum('stock'))['total'] or 0
@@ -53,8 +60,40 @@ def dashboard(request):
         total = Producto.objects.filter(categoria=c).aggregate(
             total=Sum('stock'))['total'] or 0
         stock_por_categoria.append({'nombre': c.nombre, 'total': total})
-
     stock_maximo = max([i['total'] for i in stock_por_categoria], default=1)
+
+    # Ventas por día — últimos 5 días
+    hoy = localtime(timezone.now()).date()
+    DIAS_ES = {
+        'Monday': 'Lunes', 'Tuesday': 'Martes', 'Wednesday': 'Miércoles',
+        'Thursday': 'Jueves', 'Friday': 'Viernes', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
+    }
+
+    ventas_por_dia = []
+    for i in range(0, 5):
+        dia = hoy - timedelta(days=i)
+        total_vendido = 0
+        registros = Historial.objects.filter(accion='venta')
+        for r in registros:
+            fecha_local = localtime(r.fecha).date()
+            if fecha_local == dia:
+                match = re.search(r'Vendió (\d+) unidad', r.descripcion)
+                if match:
+                    total_vendido += int(match.group(1))
+        ventas_por_dia.append({
+            'dia':   'Hoy' if i == 0 else DIAS_ES.get(dia.strftime('%A'), dia.strftime('%A')),
+            'total': total_vendido,
+        })
+
+    # Productos más vendidos — top 5
+    from collections import defaultdict
+    conteo = defaultdict(int)
+    registros_venta = Historial.objects.filter(accion='venta')
+    for r in registros_venta:
+        match = re.search(r'Vendió (\d+) unidad', r.descripcion)
+        if match:
+            conteo[r.producto] += int(match.group(1))
+    mas_vendidos = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:5]
 
     return render(request, 'dashboard.html', {
         'total_productos':     total_productos,
@@ -65,6 +104,8 @@ def dashboard(request):
         'alertas':             alertas,
         'stock_por_categoria': stock_por_categoria,
         'stock_maximo':        stock_maximo,
+        'ventas_por_dia':      ventas_por_dia,
+        'mas_vendidos':        mas_vendidos,
     })
 
 # ── PRODUCTOS ──────────────────────────────────────
@@ -108,7 +149,10 @@ def lista_productos(request):
 def crear_producto(request):
     form = ProductoForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        producto = form.save()
+        producto = form.save(commit=False)
+        if 'foto' in request.FILES:
+            producto.foto = comprimir_imagen(request.FILES['foto'])
+        producto.save()
         Historial.objects.create(
             usuario     = request.user,
             accion      = 'crear',
@@ -126,12 +170,15 @@ def editar_producto(request, pk):
 
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
     if form.is_valid():
-        # Si subieron una foto nueva y había una anterior, borrar la vieja
         if 'foto' in request.FILES and foto_anterior:
             import os
             if os.path.isfile(foto_anterior.path):
                 os.remove(foto_anterior.path)
-        form.save()
+            producto = form.save(commit=False)
+            producto.foto = comprimir_imagen(request.FILES['foto'])
+            producto.save()
+        else:
+            form.save()
         Historial.objects.create(
             usuario     = request.user,
             accion      = 'editar',
@@ -248,3 +295,42 @@ def historial(request):
         return redirect('dashboard')
     registros = Historial.objects.select_related('usuario').all()[:50]
     return render(request, 'historial.html', {'registros': registros})
+
+@login_required(login_url='login')
+def registrar_venta(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 0))
+        if cantidad <= 0:
+            messages.error(request, '❌ La cantidad debe ser mayor a 0')
+            return redirect('lista_productos')
+        if cantidad > producto.stock:
+            messages.error(request, f'❌ Solo hay {producto.stock} unidades disponibles')
+            return redirect('lista_productos')
+        producto.stock -= cantidad
+        producto.save()
+        Historial.objects.create(
+            usuario     = request.user,
+            accion      = 'venta',
+            producto    = producto.nombre,
+            descripcion = f"Vendió {cantidad} unidad(es) · Talle: {producto.talle} · Color: {producto.color} · Stock restante: {producto.stock}"
+        )
+        messages.success(request, f'✅ Venta registrada — {cantidad} unidad(es) de {producto.nombre}')
+        return redirect('lista_productos')
+    return render(request, 'registrar_venta.html', {'producto': producto})
+
+def comprimir_imagen(imagen, max_size=(800, 800), quality=75):
+    img = PILImage.open(imagen)
+    if img.mode in ('RGBA', 'P'):
+        img = img.convert('RGB')
+    img.thumbnail(max_size, PILImage.LANCZOS)
+    output = io.BytesIO()
+    img.save(output, format='JPEG', quality=quality, optimize=True)
+    output.seek(0)
+    return InMemoryUploadedFile(
+        output, 'ImageField',
+        f"{imagen.name.split('.')[0]}.jpg",
+        'image/jpeg',
+        output.getbuffer().nbytes,
+        None
+    )

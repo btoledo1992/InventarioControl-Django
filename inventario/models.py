@@ -42,9 +42,10 @@ class Producto(models.Model):
 class Historial(models.Model):
 
     ACCIONES = [
-        ('crear',    '➕ Creó'),
-        ('editar',   '✏️ Editó'),
-        ('eliminar', '🗑️ Eliminó'),
+    ('crear',    '➕ Creó'),
+    ('editar',   '✏️ Editó'),
+    ('eliminar', '🗑️ Eliminó'),
+    ('venta',    '🛒 Vendió'),
     ]
 
     usuario      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

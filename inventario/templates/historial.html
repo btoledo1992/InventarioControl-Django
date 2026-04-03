@@ -36,6 +36,8 @@
                                 <span class="badge badge-info">✏️ Editó</span>
                             {% elif registro.accion == 'eliminar' %}
                                 <span class="badge badge-error">🗑️ Eliminó</span>
+                            {% elif registro.accion == 'venta' %}
+                                <span class="badge badge-warning">🛒 Vendió</span>
                             {% endif %}
                         </td>
                         <td class="font-semibold">{{ registro.producto }}</td>

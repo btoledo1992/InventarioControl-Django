@@ -1,5 +1,5 @@
 ================================================================
-        STOCKAPP — GUÍA COMPLETA v2
+        STOCKAPP — GUÍA COMPLETA v3
         Control de Stock para Empresa de Ropa
         Django + MySQL + Tailwind + DaisyUI
 ================================================================
@@ -14,88 +14,61 @@ STACK TECNOLÓGICO
 - GitHub Desktop
 - Chart.js
 - openpyxl
+- Pillow (compresión de imágenes)
 
 
 ================================================================
 ETAPA 1 — HERRAMIENTAS NECESARIAS
 ================================================================
 
-1. Visual Studio Code
-   → https://code.visualstudio.com
-
-2. Python 3.12
-   → https://www.python.org/downloads/
-   ⚠️ IMPORTANTE: tildar "Add Python to PATH" durante la instalación
-
-3. GitHub Desktop
-   → https://desktop.github.com
-
-4. XAMPP (versión más reciente)
-   → https://www.apachefriends.org
-   ⚠️ Si tenés MariaDB 10.4 usar Django 4.2.20 (compatible)
-
-5. Node.js LTS
-   → https://nodejs.org
-   ⚠️ tildar "Add to PATH" durante la instalación
-   Si "where npm" no funciona, buscar ruta con:
+1. Visual Studio Code → https://code.visualstudio.com
+2. Python 3.12 → https://www.python.org/downloads/
+   ⚠️ tildar "Add Python to PATH"
+3. GitHub Desktop → https://desktop.github.com
+4. XAMPP (versión reciente) → https://www.apachefriends.org
+   ⚠️ Si tenés MariaDB 10.4 usar Django 4.2.20
+5. Node.js LTS → https://nodejs.org
+   ⚠️ tildar "Add to PATH"
+   Si "where npm" no funciona:
        Get-Command node
-   Y agregar en settings.py:
+   Agregar en settings.py:
        NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 
 ================================================================
-ETAPA 2 — CONFIGURAR GITHUB
+ETAPA 2 — GITHUB
 ================================================================
 
 1. Crear cuenta en https://github.com
 2. Abrir GitHub Desktop → Sign in
-3. Crear nuevo repositorio:
-   - Name: InventarioControl-Django
-   - ☑ Initialize with README
+3. Crear repositorio: InventarioControl-Django
 4. Publicar → "Publish repository"
 
 
 ================================================================
-ETAPA 3 — CREAR BASE DE DATOS EN MYSQL
+ETAPA 3 — BASE DE DATOS MYSQL
 ================================================================
 
-1. Abrir XAMPP Control Panel
-2. Iniciar Apache y MySQL (tienen que ponerse en verde)
-3. Entrar a http://localhost/phpmyadmin
-4. Clic en "Nueva"
-5. Nombre: stockapp_db
-6. Cotejamiento: utf8mb4_unicode_ci
-7. Clic en "Crear"
+1. Abrir XAMPP → iniciar Apache y MySQL
+2. Entrar a http://localhost/phpmyadmin
+3. Nueva → stockapp_db → utf8mb4_unicode_ci → Crear
 
 
 ================================================================
 ETAPA 4 — CREAR EL PROYECTO
 ================================================================
 
-1. Abrir la carpeta del proyecto en VSCode
-2. Abrir terminal: Ctrl + Ñ
-
--- Crear entorno virtual --
 python -m venv .venv
-
--- Activar entorno virtual --
 .venv\Scripts\activate
-
--- Instalar paquetes --
 pip install django==4.2.20 mysqlclient django-tailwind pillow openpyxl
 
--- Crear proyecto Django --
 django-admin startproject stockapp .
-
--- Crear app --
 python manage.py startapp inventario
 
 
 ================================================================
-ETAPA 5 — ARCHIVO .gitignore
+ETAPA 5 — .gitignore
 ================================================================
-
-Crear archivo .gitignore en la raíz del proyecto con:
 
 .venv/
 __pycache__/
@@ -106,12 +79,9 @@ media/
 
 
 ================================================================
-ETAPA 6 — CONFIGURAR settings.py
+ETAPA 6 — settings.py COMPLETO
 ================================================================
 
-Archivo: stockapp/settings.py
-
--- INSTALLED_APPS --
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,7 +94,6 @@ INSTALLED_APPS = [
     'inventario',
 ]
 
--- BASE DE DATOS --
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -136,7 +105,6 @@ DATABASES = {
     }
 }
 
--- TEMPLATES --
 TEMPLATES = [
     {
         ...
@@ -145,9 +113,7 @@ TEMPLATES = [
     }
 ]
 
--- AL FINAL DEL ARCHIVO --
 import os
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -156,10 +122,16 @@ INTERNAL_IPS = ['127.0.0.1']
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
+USE_TZ = True
+
+# Sesión — cierra a los 2 minutos de inactividad
+SESSION_COOKIE_AGE = 120
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 ================================================================
-ETAPA 7 — MODELOS (inventario/models.py)
+ETAPA 7 — models.py
 ================================================================
 
 from django.db import models
@@ -179,12 +151,8 @@ class Categoria(models.Model):
 class Producto(models.Model):
 
     TALLES = [
-        ('XS', 'XS'),
-        ('S', 'S'),
-        ('M', 'M'),
-        ('L', 'L'),
-        ('XL', 'XL'),
-        ('XXL', 'XXL'),
+        ('XS', 'XS'), ('S', 'S'), ('M', 'M'),
+        ('L', 'L'), ('XL', 'XL'), ('XXL', 'XXL'),
     ]
 
     nombre    = models.CharField(max_length=200)
@@ -210,13 +178,14 @@ class Historial(models.Model):
         ('crear',    '➕ Creó'),
         ('editar',   '✏️ Editó'),
         ('eliminar', '🗑️ Eliminó'),
+        ('venta',    '🛒 Vendió'),
     ]
 
-    usuario      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    accion       = models.CharField(max_length=10, choices=ACCIONES)
-    producto     = models.CharField(max_length=200)
-    descripcion  = models.TextField(blank=True)
-    fecha        = models.DateTimeField(auto_now_add=True)
+    usuario     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    accion      = models.CharField(max_length=10, choices=ACCIONES)
+    producto    = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True)
+    fecha       = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.usuario} - {self.accion} - {self.producto}"
@@ -228,7 +197,7 @@ class Historial(models.Model):
 
 
 ================================================================
-ETAPA 8 — ADMIN (inventario/admin.py)
+ETAPA 8 — admin.py
 ================================================================
 
 from django.contrib import admin
@@ -250,7 +219,7 @@ class HistorialAdmin(admin.ModelAdmin):
 
 
 ================================================================
-ETAPA 9 — FORMS (inventario/forms.py)
+ETAPA 9 — forms.py
 ================================================================
 
 from django import forms
@@ -277,22 +246,45 @@ class UsuarioForm(UserCreationForm):
 
 
 ================================================================
-ETAPA 10 — VISTAS (inventario/views.py)
+ETAPA 10 — views.py COMPLETO
 ================================================================
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.db import models
 from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.utils import timezone
+from django.utils.timezone import localtime
+from datetime import timedelta
+from PIL import Image as PILImage
+import io, openpyxl, re
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from openpyxl.styles import Font, PatternFill, Alignment
 from .models import Producto, Categoria, Historial
 from .forms import ProductoForm, UsuarioForm
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment
 
-# ── LOGIN ──────────────────────────────────────────
+
+def comprimir_imagen(imagen, max_size=(800, 800), quality=75):
+    img = PILImage.open(imagen)
+    if img.mode in ('RGBA', 'P'):
+        img = img.convert('RGB')
+    img.thumbnail(max_size, PILImage.LANCZOS)
+    output = io.BytesIO()
+    img.save(output, format='JPEG', quality=quality, optimize=True)
+    output.seek(0)
+    return InMemoryUploadedFile(
+        output, 'ImageField',
+        f"{imagen.name.split('.')[0]}.jpg",
+        'image/jpeg',
+        output.getbuffer().nbytes,
+        None
+    )
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -307,43 +299,76 @@ def login_view(request):
             messages.error(request, 'Usuario o contraseña incorrectos')
     return render(request, 'login.html')
 
-# ── LOGOUT ─────────────────────────────────────────
+
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-# ── DASHBOARD ──────────────────────────────────────
+
 @login_required(login_url='login')
 def dashboard(request):
-    import json
+    from django.db.models import Sum
+    from collections import defaultdict
+
     total_productos  = Producto.objects.count()
+    stock_total      = Producto.objects.aggregate(total=Sum('stock'))['total'] or 0
     stock_bajo       = Producto.objects.filter(stock__lte=5).count()
     total_categorias = Categoria.objects.count()
     ultimos          = Producto.objects.order_by('-creado')[:5]
     alertas          = Producto.objects.filter(stock__lte=5).order_by('stock')
 
-    categorias   = Categoria.objects.all()
-    labels_cat   = [c.nombre for c in categorias]
-    data_cat     = [Producto.objects.filter(categoria=c).aggregate(
-                        total=models.Sum('stock'))['total'] or 0
-                    for c in categorias]
+    categorias = Categoria.objects.all()
+    stock_por_categoria = []
+    for c in categorias:
+        total = Producto.objects.filter(categoria=c).aggregate(
+            total=Sum('stock'))['total'] or 0
+        stock_por_categoria.append({'nombre': c.nombre, 'total': total})
+    stock_maximo = max([i['total'] for i in stock_por_categoria], default=1)
 
-    talles       = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
-    data_talles  = [Producto.objects.filter(talle=t).count() for t in talles]
+    hoy = localtime(timezone.now()).date()
+    DIAS_ES = {
+        'Monday': 'Lunes', 'Tuesday': 'Martes', 'Wednesday': 'Miércoles',
+        'Thursday': 'Jueves', 'Friday': 'Viernes', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
+    }
+
+    ventas_por_dia = []
+    for i in range(0, 5):
+        dia = hoy - timedelta(days=i)
+        total_vendido = 0
+        registros = Historial.objects.filter(accion='venta')
+        for r in registros:
+            fecha_local = localtime(r.fecha).date()
+            if fecha_local == dia:
+                match = re.search(r'Vendió (\d+) unidad', r.descripcion)
+                if match:
+                    total_vendido += int(match.group(1))
+        ventas_por_dia.append({
+            'dia':   'Hoy' if i == 0 else DIAS_ES.get(dia.strftime('%A'), dia.strftime('%A')),
+            'total': total_vendido,
+        })
+
+    conteo = defaultdict(int)
+    registros_venta = Historial.objects.filter(accion='venta')
+    for r in registros_venta:
+        match = re.search(r'Vendió (\d+) unidad', r.descripcion)
+        if match:
+            conteo[r.producto] += int(match.group(1))
+    mas_vendidos = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:5]
 
     return render(request, 'dashboard.html', {
-        'total_productos':  total_productos,
-        'stock_bajo':       stock_bajo,
-        'total_categorias': total_categorias,
-        'ultimos':          ultimos,
-        'alertas':          alertas,
-        'labels_cat':       json.dumps(labels_cat),
-        'data_cat':         json.dumps(data_cat),
-        'labels_talles':    json.dumps(talles),
-        'data_talles':      json.dumps(data_talles),
+        'total_productos':     total_productos,
+        'stock_total':         stock_total,
+        'stock_bajo':          stock_bajo,
+        'total_categorias':    total_categorias,
+        'ultimos':             ultimos,
+        'alertas':             alertas,
+        'stock_por_categoria': stock_por_categoria,
+        'stock_maximo':        stock_maximo,
+        'ventas_por_dia':      ventas_por_dia,
+        'mas_vendidos':        mas_vendidos,
     })
 
-# ── PRODUCTOS ──────────────────────────────────────
+
 @login_required(login_url='login')
 def lista_productos(request):
     productos  = Producto.objects.select_related('categoria').all()
@@ -363,6 +388,10 @@ def lista_productos(request):
     if stock_bajo:
         productos = productos.filter(stock__lte=5)
 
+    paginator = Paginator(productos, 10)
+    page      = request.GET.get('page', 1)
+    productos = paginator.get_page(page)
+
     return render(request, 'lista.html', {
         'productos':   productos,
         'categorias':  categorias,
@@ -375,11 +404,15 @@ def lista_productos(request):
         }
     })
 
+
 @login_required(login_url='login')
 def crear_producto(request):
     form = ProductoForm(request.POST or None, request.FILES or None)
     if form.is_valid():
-        producto = form.save()
+        producto = form.save(commit=False)
+        if 'foto' in request.FILES:
+            producto.foto = comprimir_imagen(request.FILES['foto'])
+        producto.save()
         Historial.objects.create(
             usuario     = request.user,
             accion      = 'crear',
@@ -390,12 +423,23 @@ def crear_producto(request):
         return redirect('lista_productos')
     return render(request, 'formulario.html', {'form': form, 'titulo': '➕ Nuevo Producto'})
 
+
 @login_required(login_url='login')
 def editar_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+    foto_anterior = producto.foto
+
     form = ProductoForm(request.POST or None, request.FILES or None, instance=producto)
     if form.is_valid():
-        form.save()
+        if 'foto' in request.FILES and foto_anterior:
+            import os
+            if os.path.isfile(foto_anterior.path):
+                os.remove(foto_anterior.path)
+            producto = form.save(commit=False)
+            producto.foto = comprimir_imagen(request.FILES['foto'])
+            producto.save()
+        else:
+            form.save()
         Historial.objects.create(
             usuario     = request.user,
             accion      = 'editar',
@@ -405,6 +449,7 @@ def editar_producto(request, pk):
         messages.success(request, '✅ Producto actualizado correctamente')
         return redirect('lista_productos')
     return render(request, 'formulario.html', {'form': form, 'titulo': '✏️ Editar Producto'})
+
 
 @login_required(login_url='login')
 def eliminar_producto(request, pk):
@@ -421,7 +466,31 @@ def eliminar_producto(request, pk):
         return redirect('lista_productos')
     return render(request, 'confirmar_eliminar.html', {'producto': producto})
 
-# ── EXPORTAR EXCEL ─────────────────────────────────
+
+@login_required(login_url='login')
+def registrar_venta(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 0))
+        if cantidad <= 0:
+            messages.error(request, '❌ La cantidad debe ser mayor a 0')
+            return redirect('lista_productos')
+        if cantidad > producto.stock:
+            messages.error(request, f'❌ Solo hay {producto.stock} unidades disponibles')
+            return redirect('lista_productos')
+        producto.stock -= cantidad
+        producto.save()
+        Historial.objects.create(
+            usuario     = request.user,
+            accion      = 'venta',
+            producto    = producto.nombre,
+            descripcion = f"Vendió {cantidad} unidad(es) · Talle: {producto.talle} · Color: {producto.color} · Stock restante: {producto.stock}"
+        )
+        messages.success(request, f'✅ Venta registrada — {cantidad} unidad(es) de {producto.nombre}')
+        return redirect('lista_productos')
+    return render(request, 'registrar_venta.html', {'producto': producto})
+
+
 @login_required(login_url='login')
 def exportar_excel(request):
     wb = openpyxl.Workbook()
@@ -435,8 +504,8 @@ def exportar_excel(request):
     columnas = ['ID', 'Nombre', 'Categoría', 'Talle', 'Color', 'Precio', 'Stock', 'Fecha']
     for col_num, columna in enumerate(columnas, 1):
         cell = ws.cell(row=1, column=col_num, value=columna)
-        cell.font      = header_font
-        cell.fill      = header_fill
+        cell.font = header_font
+        cell.fill = header_fill
         cell.alignment = header_align
 
     ws.column_dimensions['A'].width = 8
@@ -466,13 +535,14 @@ def exportar_excel(request):
     wb.save(response)
     return response
 
-# ── USUARIOS ───────────────────────────────────────
+
 @login_required(login_url='login')
 def lista_usuarios(request):
     if not request.user.is_staff:
         return redirect('dashboard')
     usuarios = User.objects.all().order_by('username')
     return render(request, 'usuarios/lista_usuarios.html', {'usuarios': usuarios})
+
 
 @login_required(login_url='login')
 def crear_usuario(request):
@@ -484,9 +554,9 @@ def crear_usuario(request):
         messages.success(request, '✅ Usuario creado correctamente')
         return redirect('lista_usuarios')
     return render(request, 'usuarios/formulario_usuario.html', {
-        'form': form,
-        'titulo': '➕ Nuevo Usuario'
+        'form': form, 'titulo': '➕ Nuevo Usuario'
     })
+
 
 @login_required(login_url='login')
 def eliminar_usuario(request, pk):
@@ -502,7 +572,7 @@ def eliminar_usuario(request, pk):
         return redirect('lista_usuarios')
     return render(request, 'usuarios/confirmar_eliminar_usuario.html', {'usuario': usuario})
 
-# ── HISTORIAL ──────────────────────────────────────
+
 @login_required(login_url='login')
 def historial(request):
     if not request.user.is_staff:
@@ -512,7 +582,7 @@ def historial(request):
 
 
 ================================================================
-ETAPA 11 — URLS (inventario/urls.py)
+ETAPA 11 — urls.py
 ================================================================
 
 from django.urls import path
@@ -527,6 +597,7 @@ urlpatterns = [
     path('productos/editar/<int:pk>/',   views.editar_producto,   name='editar_producto'),
     path('productos/eliminar/<int:pk>/', views.eliminar_producto, name='eliminar_producto'),
     path('productos/exportar/',          views.exportar_excel,    name='exportar_excel'),
+    path('productos/venta/<int:pk>/',    views.registrar_venta,   name='registrar_venta'),
     path('usuarios/',                    views.lista_usuarios,    name='lista_usuarios'),
     path('usuarios/crear/',              views.crear_usuario,     name='crear_usuario'),
     path('usuarios/eliminar/<int:pk>/',  views.eliminar_usuario,  name='eliminar_usuario'),
@@ -535,7 +606,7 @@ urlpatterns = [
 
 
 ================================================================
-ETAPA 12 — URLS PRINCIPAL (stockapp/urls.py)
+ETAPA 12 — stockapp/urls.py
 ================================================================
 
 from django.contrib import admin
@@ -550,36 +621,33 @@ urlpatterns = [
 
 
 ================================================================
-ETAPA 13 — TEMPLATES HTML
+ETAPA 13 — TEMPLATES
 ================================================================
 
-Estructura de carpetas:
-inventario/
-└── templates/
-    ├── base.html
-    ├── login.html
-    ├── dashboard.html
-    ├── lista.html
-    ├── formulario.html
-    ├── confirmar_eliminar.html
-    ├── historial.html
-    └── usuarios/
-        ├── lista_usuarios.html
-        ├── formulario_usuario.html
-        └── confirmar_eliminar_usuario.html
+inventario/templates/
+├── base.html               ← navbar + drawer mobile + modo oscuro
+├── login.html              ← diseño azul split con fondo degradado
+├── dashboard.html          ← panel principal con stats y gráficos
+├── lista.html              ← productos con filtros y paginación
+├── formulario.html         ← crear/editar producto
+├── confirmar_eliminar.html ← confirmar borrado
+├── registrar_venta.html    ← registrar venta
+├── historial.html          ← historial de acciones
+└── usuarios/
+    ├── lista_usuarios.html
+    ├── formulario_usuario.html
+    └── confirmar_eliminar_usuario.html
 
 
 ================================================================
-ETAPA 14 — CONFIGURAR TAILWIND
+ETAPA 14 — TAILWIND
 ================================================================
 
--- Iniciar Tailwind --
 python manage.py tailwind init
 → Nombre: theme
 → Opción: 2 (Tailwind v4 Full)
 → DaisyUI: y
 
--- Instalar dependencias --
 python manage.py tailwind install
 
 
@@ -596,76 +664,93 @@ python manage.py createsuperuser
 ETAPA 16 — CORRER EL PROYECTO
 ================================================================
 
-⚠️ Necesitás DOS terminales abiertas al mismo tiempo:
+⚠️ DOS terminales al mismo tiempo:
 
--- Terminal 1: Tailwind --
-.venv\Scripts\activate
-python manage.py tailwind start
+Terminal 1:
+    .venv\Scripts\activate
+    python manage.py tailwind start
 
--- Terminal 2: Django --
-.venv\Scripts\activate
-python manage.py runserver
+Terminal 2:
+    .venv\Scripts\activate
+    python manage.py runserver
 
--- URLs disponibles --
-http://127.0.0.1:8000              → Dashboard
-http://127.0.0.1:8000/admin        → Panel de administración
-http://127.0.0.1:8000/productos/   → Lista de productos
-http://127.0.0.1:8000/usuarios/    → Lista de usuarios (solo admin)
-http://127.0.0.1:8000/historial/   → Historial de cambios (solo admin)
+URLs:
+    http://127.0.0.1:8000              → Dashboard
+    http://127.0.0.1:8000/admin        → Panel admin
+    http://127.0.0.1:8000/productos/   → Productos
+    http://127.0.0.1:8000/usuarios/    → Usuarios (solo admin)
+    http://127.0.0.1:8000/historial/   → Historial (solo admin)
 
 
 ================================================================
-FUNCIONALIDADES IMPLEMENTADAS
+FUNCIONALIDADES v3
 ================================================================
 
-✅ Login y logout con redirección automática
+✅ Login/logout con redirección automática
+✅ Sesión con timeout de 2 minutos de inactividad
+✅ Login rediseñado — fondo azul degradado, card glassmorphism
 ✅ Protección de todas las vistas con @login_required
-✅ CRUD completo de productos (crear, editar, eliminar)
-✅ Fotos de productos
-✅ Dashboard con estadísticas
-✅ Gráfico de barras: stock por categoría
-✅ Gráfico de dona: productos por talle
-✅ Alertas de stock bajo en el dashboard
+✅ CRUD completo de productos con fotos
+✅ Compresión automática de imágenes (max 800x800, JPEG 75%)
+✅ Borrado de foto anterior al editar
+✅ Dashboard moderno con estadísticas
+✅ Barras de stock por categoría
+✅ Alerta parpadeante de stock bajo
+✅ Ventas por día (últimos 5 días, en español, hora Argentina)
+✅ Productos más vendidos (top 5)
+✅ Registro de ventas con descuento de stock
+✅ Badge de stock: verde/amarillo/rojo según cantidad
+✅ Historial de acciones (crear/editar/eliminar/vender)
 ✅ Filtros avanzados (búsqueda, categoría, talle, stock bajo)
+✅ Paginación de a 10 productos
 ✅ Exportar productos a Excel con formato
-✅ Múltiples usuarios con roles (admin y usuario normal)
-✅ Historial de cambios (quién hizo qué y cuándo)
+✅ Múltiples usuarios con roles (admin/usuario)
 ✅ Diseño mobile con menú hamburguesa
 ✅ Modo claro y oscuro con memoria
+✅ Fuente Inter (moderna)
+✅ Cambio de contraseña desde /admin
 
 
 ================================================================
 ERRORES COMUNES Y SOLUCIONES
 ================================================================
 
-ERROR: django.db.utils.NotSupportedError: MariaDB 10.6 or later is required
-SOLUCIÓN: Usar Django 4.2.20
-    pip uninstall django
-    pip install django==4.2.20
+ERROR: MariaDB 10.6 or later is required
+SOLUCIÓN: pip install django==4.2.20
 
-ERROR: CommandError: node.js and/or npm is not installed
+ERROR: node.js and/or npm is not installed
 SOLUCIÓN: Agregar en settings.py:
     NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
-    (buscar ruta con: Get-Command node)
 
 ERROR: 'where npm' no devuelve nada
-SOLUCIÓN: Cerrar y reabrir VSCode después de instalar Node.js
+SOLUCIÓN: Cerrar y reabrir VSCode
 
 ERROR: Redirección al login no funciona
-SOLUCIÓN: Agregar en settings.py:
-    LOGIN_URL = '/login/'
+SOLUCIÓN: LOGIN_URL = '/login/' en settings.py
 
 ERROR: El editar no guarda los cambios
-SOLUCIÓN: Verificar que el form tenga enctype="multipart/form-data"
+SOLUCIÓN: Verificar enctype="multipart/form-data" en el form
+
+ERROR: Ventas de hoy no aparecen en el dashboard
+SOLUCIÓN: Usar localtime() para comparar fechas:
+    from django.utils.timezone import localtime
+    fecha_local = localtime(r.fecha).date()
+    TIME_ZONE = 'America/Argentina/Buenos_Aires' en settings.py
+
+ERROR: SyntaxError en views.py
+SOLUCIÓN: Verificar que no haya líneas comentadas con """ """
 
 
 ================================================================
-FIN DE LA GUÍA v2
+PARA RESETEAR CONTRASEÑA DE UN USUARIO
 ================================================================
 
-COSAS A VER 
-- chatbot
-- dashboard en avisos poco stock me trae todo osea se agranda el dasboard, 
-        me gustaria solo un msj general tiene productos con poco stock y q vaya a productos.
-- un boton alado de editar/borrar que diga vendido entonces yo puedo restar en el stock pero que siempre quede en historial
-- error cuando inicia el servidor de una te tiene q tirar a log, y que un tiempo de inactividad se desloge
+1. Entrar a http://127.0.0.1:8000/admin
+2. Usuarios → clic en el usuario
+3. Clic en "este formulario" dentro del texto de contraseña
+4. Ingresar nueva contraseña y confirmar
+
+
+================================================================
+FIN DE LA GUÍA v3
+================================================================

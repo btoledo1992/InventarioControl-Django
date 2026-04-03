@@ -30,7 +30,7 @@
     <div class="card bg-base-100 shadow-sm border border-base-300">
         <div class="card-body p-5 text-center">
             <p class="text-2xl mb-1">📊</p>
-            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Stock total de prendas</p>
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60">Stock total de articulos</p>
             <p class="text-4xl font-medium text-success mt-1">{{ stock_total }}</p>
             <p class="text-xs opacity-50 mt-2">unidades en depósito</p>
         </div>
@@ -81,25 +81,79 @@
 
     <!-- ALERTAS -->
     <div class="card bg-base-100 shadow-sm border border-base-300">
-        <div class="card-body p-5">
-            <p class="text-xs font-medium uppercase tracking-widest opacity-60 mb-4 text-center">Alertas de stock bajo</p>
-            {% for producto in alertas %}
-            <div class="flex items-center justify-between py-2 border-b border-base-200 last:border-0">
-                <div>
-                    <p class="text-sm font-medium">{{ producto.nombre }}</p>
-                    <p class="text-xs opacity-50">{{ producto.categoria }} · Talle {{ producto.talle }}</p>
-                </div>
-                {% if producto.stock == 0 %}
-                    <span class="badge badge-error badge-sm">Sin stock</span>
-                {% else %}
-                    <span class="badge badge-warning badge-sm">{{ producto.stock }} uds.</span>
-                {% endif %}
+        <div class="card-body p-5 flex items-center justify-center" style="min-height: 180px;">
+            {% if alertas %}
+            <div class="text-center">
+                <div style="
+                    display: inline-block;
+                    width: 16px; height: 16px;
+                    background: #f59e0b;
+                    border-radius: 50%;
+                    animation: parpadeo 1.2s ease-in-out infinite;
+                    margin-bottom: 16px;
+                "></div>
+                <p class="text-lg font-medium text-warning">Hay artículos con stock bajo</p>
+                <p class="text-sm opacity-50 mt-1">
+                    <strong>{{ stock_bajo }}</strong> producto{{ stock_bajo|pluralize }} con 5 o menos unidades
+                </p>
+                <a href="/productos/?stock_bajo=1" class="btn btn-warning btn-sm mt-4">
+                    Ver productos →
+                </a>
             </div>
-            {% empty %}
-            <div class="text-center py-6">
+            {% else %}
+            <div class="text-center">
                 <p class="text-3xl mb-2">✅</p>
                 <p class="text-sm text-success font-medium">Todo el stock está en orden</p>
             </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+    @keyframes parpadeo {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(0.85); }
+    }
+    </style>
+</div>
+
+<!-- VENTAS POR DÍA + MÁS VENDIDOS -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+    <!-- VENTAS POR DÍA -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60 mb-4">Ventas por día</p>
+            {% for dia in ventas_por_dia %}
+            <div class="flex justify-between items-center py-2 border-b border-base-200 last:border-0">
+                <span class="text-sm opacity-70">{{ dia.dia }}</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium">{{ dia.total }} unidades</span>
+                    {% if forloop.last and dia.total > ventas_por_dia.3.total %}
+                        <span class="badge badge-success badge-sm">+{{ dia.total|add:"-"|add:ventas_por_dia.3.total }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-sm opacity-50 text-center py-4">Sin ventas registradas</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- MÁS VENDIDOS -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-5">
+            <p class="text-xs font-medium uppercase tracking-widest opacity-60 mb-4">Productos más vendidos</p>
+            {% for nombre, cantidad in mas_vendidos %}
+            <div class="flex justify-between items-center py-2 border-b border-base-200 last:border-0">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs opacity-40 font-medium w-4">#{{ forloop.counter }}</span>
+                    <span class="text-sm truncate max-w-xs">{{ nombre }}</span>
+                </div>
+                <span class="text-sm font-medium text-primary">{{ cantidad }} uds.</span>
+            </div>
+            {% empty %}
+            <p class="text-sm opacity-50 text-center py-4">Sin ventas registradas</p>
             {% endfor %}
         </div>
     </div>
@@ -122,7 +176,6 @@
                         <th>Talle</th>
                         <th>Precio</th>
                         <th>Stock</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -148,14 +201,13 @@
                         <td class="text-sm">{{ producto.talle }}</td>
                         <td class="text-sm">${{ producto.precio }}</td>
                         <td>
-                            {% if producto.stock <= 5 %}
-                                <span class="badge badge-warning badge-sm">{{ producto.stock }}</span>
+                            {% if producto.stock == 0 %}
+                                <span class="badge badge-error">0</span>
+                            {% elif producto.stock <= 5 %}
+                                <span class="badge badge-warning">{{ producto.stock }}</span>
                             {% else %}
-                                <span class="badge badge-success badge-sm">{{ producto.stock }}</span>
+                                <span class="badge badge-success">{{ producto.stock }}</span>
                             {% endif %}
-                        </td>
-                        <td>
-                            <a href="/productos/editar/{{ producto.id }}/" class="text-xs text-primary">Editar</a>
                         </td>
                     </tr>
                     {% empty %}

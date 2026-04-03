@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-md mx-auto">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+
+            <div class="text-center mb-6">
+                <p class="text-4xl mb-2">🛒</p>
+                <h2 class="text-2xl font-medium">Registrar venta</h2>
+                <p class="text-sm opacity-60 mt-1">{{ producto.nombre }}</p>
+            </div>
+
+            <!-- INFO DEL PRODUCTO -->
+            <div class="bg-base-200 rounded-xl p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm opacity-60">Categoría</span>
+                    <span class="text-sm font-medium">{{ producto.categoria }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm opacity-60">Talle</span>
+                    <span class="text-sm font-medium">{{ producto.talle }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm opacity-60">Color</span>
+                    <span class="text-sm font-medium">{{ producto.color }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm opacity-60">Stock disponible</span>
+                    {% if producto.stock <= 5 %}
+                        <span class="badge badge-warning">{{ producto.stock }} unidades</span>
+                    {% else %}
+                        <span class="badge badge-success">{{ producto.stock }} unidades</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- FORMULARIO -->
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-medium">¿Cuántas unidades vendiste?</span>
+                    </label>
+                    <input
+                        type="number"
+                        name="cantidad"
+                        min="1"
+                        max="{{ producto.stock }}"
+                        value="1"
+                        class="input input-bordered w-full text-center text-2xl font-medium"
+                        autofocus
+                    />
+                    <label class="label">
+                        <span class="label-text-alt opacity-50">Máximo {{ producto.stock }} unidades</span>
+                    </label>
+                </div>
+
+                {% if producto.stock == 0 %}
+                    <div class="alert alert-error mb-4">
+                        <span>❌ Este producto no tiene stock disponible</span>
+                    </div>
+                    <a href="/productos/" class="btn btn-ghost w-full">Volver</a>
+                {% else %}
+                    <div class="flex gap-3">
+                        <button type="submit" class="btn btn-success flex-1">
+                            🛒 Confirmar venta
+                        </button>
+                        <a href="/productos/" class="btn btn-ghost flex-1">
+                            Cancelar
+                        </a>
+                    </div>
+                {% endif %}
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

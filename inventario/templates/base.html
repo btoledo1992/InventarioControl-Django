@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Stock</title>
     {% tailwind_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+        <style>
+            * { font-family: 'Inter', sans-serif; }
+        </style>
 </head>
 <body class="bg-base-200 min-h-screen">
 
@@ -32,8 +36,8 @@
                 <li><a href="/">Dashboard</a></li>
                 <li><a href="/productos/">Productos</a></li>
                 {% if request.user.is_staff %}
-                    <li><a href="/usuarios/">👥 Usuarios</a></li>
-                    <li><a href="/historial/">📋 Historial</a></li>
+                    <li><a href="/usuarios/">Usuarios</a></li>
+                    <li><a href="/historial/">Historial</a></li>
                 {% endif %}
             </ul>
             <!-- MODO OSCURO -->
