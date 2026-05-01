@@ -7,20 +7,19 @@ Sistema web desarrollado con **Django + MySQL** para la gestión de inventario e
 ## 📸 Capturas
 
 ### 🔐 Login
-![Login](screenshots/login.png)<img width="252" height="154" alt="image" src="https://github.com/user-attachments/assets/350d7987-88e7-4ee3-b729-ba3205180824" />
-
+![Login]<img width="1593" height="766" alt="image" src="https://github.com/user-attachments/assets/a9335407-8c4c-4849-b677-fa876f553a38" />
 
 ### 📊 Dashboard
-![Dashboard](screenshots/dashboard.png)
+![Dashboard]<img width="1577" height="532" alt="image" src="https://github.com/user-attachments/assets/5ca85bef-d803-4330-ac4f-c8a764a29b4d" />
 
 ### 📦 Productos
-![Productos](screenshots/productos.png)
+![Productos]<img width="1571" height="683" alt="image" src="https://github.com/user-attachments/assets/7a6e6692-7338-4c02-9a0a-521c4363c298" />
 
 ### 👥 Usuarios
-![Usuarios](screenshots/usuarios.png)
+![Usuarios]<img width="1593" height="474" alt="image" src="https://github.com/user-attachments/assets/54d3a095-3b21-427e-ac33-7d9e7b6b526a" />
 
 ### 📋 Historial
-![Historial](screenshots/historial.png)
+![Historial]<img width="1579" height="739" alt="image" src="https://github.com/user-attachments/assets/b4318607-dfe9-46fe-b42c-ed8ec8b5e8ee" />
 
 ---
 
