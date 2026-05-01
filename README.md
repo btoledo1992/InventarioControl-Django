@@ -20,7 +20,7 @@ Sistema web desarrollado con **Django + MySQL** para la gestión de inventario e
 
 ### 👥 Usuarios
 
-<img width="1593" height="474" alt="image" src="https://github.com/user-attachments/assets/54d3a095-3b21-427e-ac33-7d9e7b6b526a" />
+<img width="1447" height="503" alt="image" src="https://github.com/user-attachments/assets/b460417d-938d-43fa-bf64-48661ef8509c" />
 
 ### 📋 Historial
 
