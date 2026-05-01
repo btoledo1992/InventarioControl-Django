@@ -7,7 +7,8 @@ Sistema web desarrollado con **Django + MySQL** para la gestión de inventario e
 ## 📸 Capturas
 
 ### 🔐 Login
-![Login](screenshots/login.png)
+![Login](screenshots/login.png)<img width="252" height="154" alt="image" src="https://github.com/user-attachments/assets/350d7987-88e7-4ee3-b729-ba3205180824" />
+
 
 ### 📊 Dashboard
 ![Dashboard](screenshots/dashboard.png)
