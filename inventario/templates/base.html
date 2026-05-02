@@ -9,6 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
         <style>
             * { font-family: 'Inter', sans-serif; }
+            @keyframes bt-blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+            [data-theme="dark"] .bt-cmd { color: #e5e5e5 !important; }
+            [data-theme="dark"] footer { border-top-color: rgba(255,255,255,0.08) !important; }
         </style>
 </head>
 <body class="bg-base-200 min-h-screen">
@@ -102,6 +108,18 @@
             </ul>
         </div>
     </div>
+
+    <!-- FOOTER -->
+    <footer style="display:block; border-top: 1px solid rgba(0,0,0,0.08); padding: 14px 24px; font-family: 'Courier New', Courier, monospace; font-size: 13px; margin-top: 20px; text-align: center;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;">
+            <span style="color:#1D9E75; font-weight:600;">btoledo@ush</span>
+            <span style="color:#888;">:~$</span>
+            <span style="color:#222; font-weight:600;" class="bt-cmd">_</span>
+            <span style="display:inline-block; width:7px; height:13px; background:#1D9E75; vertical-align:middle; border-radius:1px; animation: bt-blink 1.1s step-end infinite;"></span>
+            <span style="color:#888; margin: 0 8px;">·</span>
+            <span style="color:#888; font-size:12px;">desarrollo &amp; infraestructura · &copy; 2026 &mdash; todos los derechos reservados</span>
+        </div>
+    </footer>
 
 <script>
     // Cargar tema guardado
