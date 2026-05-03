@@ -1,10 +1,15 @@
 # 👕 StockApp — Sistema de Control de Inventario
 
-Sistema web desarrollado con **Django + MySQL** para la gestión de inventario en negocios de indumentaria. Permite administrar productos, registrar ventas, gestionar usuarios y visualizar métricas en tiempo real mediante un dashboard completo.
+Sistema web de gestión de inventario para negocios de indumentaria. Desarrollado con Django, Tailwind CSS y DaisyUI.
+
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Django](https://img.shields.io/badge/Django-4.2.20-green)
+![MySQL](https://img.shields.io/badge/MySQL-MariaDB_10.4-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
-## 📸 Capturas
+## Capturas
 
 ### 🔐 Login
 
@@ -28,62 +33,80 @@ Sistema web desarrollado con **Django + MySQL** para la gestión de inventario e
 
 ---
 
-## ✨ Características
+## Características
 
-- 🔐 **Autenticación** — Login/logout con sesión y timeout de inactividad
-- 📊 **Dashboard** — Métricas en tiempo real: stock total, productos, categorías, alertas
-- 📦 **CRUD de productos** — Crear, editar, eliminar con foto comprimida automáticamente
-- 🛒 **Registro de ventas** — Descuento de stock con historial completo
-- 🔔 **Alertas de stock bajo** — Notificación visual con punto parpadeante
-- 🔍 **Filtros avanzados** — Por nombre, categoría, talle y stock bajo
-- 📄 **Paginación** — De a 10 productos por página
-- 📤 **Exportar a Excel** — Con formato y encabezados de color
-- 👥 **Gestión de usuarios** — Roles: Admin y Usuario con permisos diferenciados
-- 📋 **Historial de cambios** — Registra quién hizo qué y cuándo
-- 📈 **Ventas por día** — Últimos 5 días con hora local Argentina
-- 🏆 **Productos más vendidos** — Top 5 histórico
-- 🌙 **Modo claro/oscuro** — Con memoria en el navegador
-- 📱 **Diseño responsive** — Menú hamburguesa en mobile
+- Autenticación — Login/logout con sesión y timeout de inactividad (2 minutos)
+- Dashboard — Métricas en tiempo real: stock total, productos, categorías y ventas del día
+- CRUD de productos — Crear, editar y eliminar con foto comprimida automáticamente (max 800x800px)
+- Registro de ventas — Descuento de stock con confirmación de cantidad y registro en historial
+- Alertas de stock bajo — Notificación visual con punto parpadeante cuando hay productos con 5 o menos unidades
+- Filtros avanzados — Por nombre, categoría, talle y stock bajo con paginación de a 10
+- Exportar a Excel — Con formato, encabezados de color y ancho de columnas automático
+- Gestión de usuarios — Roles: Admin y Usuario con permisos diferenciados
+- Historial de cambios — Registra quién creó, editó, vendió o eliminó cada producto y cuándo
+- Ventas por día — Últimos 5 días con hora local Argentina
+- Productos más vendidos — Top 5 histórico calculado desde el historial
+- Modo claro/oscuro — Toggle con persistencia en el navegador
+- Responsive — Menú hamburguesa en mobile
 
 ---
 
-## 🛠️ Stack tecnológico
+## Roles y permisos
+
+| Rol | Acceso |
+| --- | --- |
+| Admin | Todo el sistema — productos, usuarios, historial y exportación |
+| Usuario | Solo productos — cargar, editar, eliminar y registrar ventas |
+
+---
+
+## Estados de stock
+
+| Color | Rango | Descripción |
+| --- | --- | --- |
+| 🟢 Verde | +5 unidades | Stock normal |
+| 🟡 Amarillo | 1 a 5 unidades | Stock bajo |
+| 🔴 Rojo | 0 unidades | Sin stock |
+
+---
+
+## Stack tecnológico
 
 | Tecnología | Uso |
-|---|---|
+| --- | --- |
 | Python 3.12 | Backend |
 | Django 4.2.20 | Framework principal |
-| MySQL / MariaDB 10.4+ | Base de datos |
+| MySQL / MariaDB 10.4 | Base de datos |
 | Tailwind CSS v4 + DaisyUI | Estilos y componentes UI |
 | Node.js LTS | Compilación de Tailwind |
-| Pillow | Compresión de imágenes |
+| Pillow | Compresión y manejo de imágenes |
 | openpyxl | Exportación a Excel |
+| Inter (Google Fonts) | Tipografía |
 
 ---
 
-## 🚀 Instalación paso a paso
+## Instalación
 
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/TuUsuario/InventarioControl-Django.git
+git clone https://github.com/btoledo1992/InventarioControl-Django.git
 cd InventarioControl-Django
 ```
 
 ### 2. Crear y activar el entorno virtual
 
 ```bash
-# Crear
 python -m venv .venv
 
-# Activar (Windows)
+# Windows
 .venv\Scripts\activate
 
-# Activar (Mac/Linux)
+# Mac/Linux
 source .venv/bin/activate
 ```
 
-### 3. Instalar dependencias Python
+### 3. Instalar dependencias
 
 ```bash
 pip install django==4.2.20 mysqlclient django-tailwind pillow openpyxl
@@ -91,23 +114,21 @@ pip install django==4.2.20 mysqlclient django-tailwind pillow openpyxl
 
 ### 4. Crear la base de datos en MySQL
 
-Abrí tu cliente MySQL (phpMyAdmin, Workbench, etc.) y ejecutá:
-
 ```sql
 CREATE DATABASE stockapp_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### 5. Configurar la base de datos
 
-Abrí `stockapp/settings.py` y configurá:
+Abrí `stockapp/settings.py` y completá con tus datos:
 
 ```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'stockapp_db',
-        'USER': 'root',         # tu usuario MySQL
-        'PASSWORD': '',         # tu contraseña MySQL
+        'USER': 'root',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -116,13 +137,13 @@ DATABASES = {
 
 ### 6. Configurar la ruta de npm (Windows)
 
-En `stockapp/settings.py` verificá que esté esta línea con tu ruta de Node:
+En `stockapp/settings.py`:
 
 ```python
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 ```
 
-Para encontrar tu ruta ejecutá en la terminal:
+Para encontrar tu ruta ejecutá:
 ```bash
 Get-Command node
 ```
@@ -145,40 +166,46 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 10. Correr el proyecto
+### 10. Correr el servidor
 
 Necesitás **dos terminales** abiertas al mismo tiempo:
 
 **Terminal 1 — Tailwind:**
 ```bash
-.venv\Scripts\activate
 python manage.py tailwind start
 ```
 
 **Terminal 2 — Django:**
 ```bash
-.venv\Scripts\activate
 python manage.py runserver
 ```
 
+Entrar a http://127.0.0.1:8000 y loguearse con el superusuario.
+
 ---
 
-## 🌐 URLs disponibles
+## URLs disponibles
 
 | URL | Descripción |
-|---|---|
-| `http://127.0.0.1:8000/` | Dashboard principal |
-| `http://127.0.0.1:8000/productos/` | Lista de productos |
-| `http://127.0.0.1:8000/usuarios/` | Gestión de usuarios *(solo admin)* |
-| `http://127.0.0.1:8000/historial/` | Historial de cambios *(solo admin)* |
-| `http://127.0.0.1:8000/admin/` | Panel de administración Django |
+| --- | --- |
+| / | Dashboard principal |
+| /productos/ | Lista de productos con filtros |
+| /productos/crear/ | Nuevo producto |
+| /productos/exportar/ | Exportar a Excel |
+| /usuarios/ | Gestión de usuarios *(solo admin)* |
+| /historial/ | Historial de cambios *(solo admin)* |
+| /admin/ | Panel Django Admin |
 
 ---
 
-## 🗂️ Estructura del proyecto
+## Estructura del proyecto
 
 ```
 InventarioControl-Django/
+│
+├── stockapp/
+│   ├── settings.py
+│   └── urls.py
 │
 ├── inventario/
 │   ├── migrations/
@@ -188,8 +215,9 @@ InventarioControl-Django/
 │   │   ├── dashboard.html
 │   │   ├── lista.html
 │   │   ├── formulario.html
-│   │   ├── historial.html
+│   │   ├── confirmar_eliminar.html
 │   │   ├── registrar_venta.html
+│   │   ├── historial.html
 │   │   └── usuarios/
 │   ├── models.py
 │   ├── views.py
@@ -197,28 +225,27 @@ InventarioControl-Django/
 │   ├── admin.py
 │   └── urls.py
 │
-├── stockapp/
-│   ├── settings.py
-│   └── urls.py
-│
-├── theme/              ← Tailwind CSS
-├── media/              ← Imágenes subidas (no incluido en repo)
+├── theme/
+├── media/
+├── .gitignore
 ├── manage.py
 └── README.md
 ```
 
 ---
 
-## 🧠 Modelos principales
+## Modelos principales
 
-### Categoría
+**Categoría**
+
 | Campo | Tipo |
-|---|---|
+| --- | --- |
 | nombre | CharField |
 
-### Producto
+**Producto**
+
 | Campo | Tipo |
-|---|---|
+| --- | --- |
 | nombre | CharField |
 | categoria | ForeignKey |
 | talle | CharField (XS/S/M/L/XL/XXL) |
@@ -228,9 +255,10 @@ InventarioControl-Django/
 | foto | ImageField |
 | creado | DateTimeField |
 
-### Historial
+**Historial**
+
 | Campo | Tipo |
-|---|---|
+| --- | --- |
 | usuario | ForeignKey |
 | accion | CharField (crear/editar/eliminar/venta) |
 | producto | CharField |
@@ -239,14 +267,15 @@ InventarioControl-Django/
 
 ---
 
-## ⚠️ Solución de errores comunes
+## Solución de errores comunes
 
-**Error: `MariaDB 10.6 or later is required`**
+**MariaDB 10.6 or later is required**
+
 ```bash
 pip install django==4.2.20
 ```
 
-**Error: `node.js and/or npm is not installed`**
+**node.js and/or npm is not installed**
 
 Agregá en `settings.py`:
 ```python
@@ -255,19 +284,29 @@ NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 **Las ventas de hoy no aparecen en el dashboard**
 
-Verificá en `settings.py`:
+Verificar en `settings.py`:
 ```python
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 USE_TZ = True
 ```
 
+**El editar no guarda los cambios**
+
+Verificar que el formulario tenga:
+```html
+<form method="POST" enctype="multipart/form-data">
+```
+
 ---
 
-## 📄 Licencia
+## Autor
 
-Proyecto de uso educativo y adaptable a entornos productivos.
+Desarrollado por **Blas Emanuel Toledo**
 
----
+Ushuaia, Argentina — desarrollo & infraestructura
+
+https://github.com/btoledo1992
+
 
 ## 👨‍💻 Autor
 
