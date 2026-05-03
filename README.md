@@ -301,15 +301,10 @@ Verificar que el formulario tenga:
 
 ## Autor
 
-Desarrollado por **Blas Emanuel Toledo**
+Desarrollado por **Blas Emanuel Toledo** — [@btoledo](https://github.com/btoledo1992)
 
 Ushuaia, Argentina — desarrollo & infraestructura
 
 https://github.com/btoledo1992
-
-
-## 👨‍💻 Autor
-
-Desarrollado por **Blas Emanuel Toledo** — [@btoledo](https://github.com/btoledo1992)
 
 > Proyecto desarrollado como parte del proceso de aprendizaje de desarrollo web fullstack con Django.
