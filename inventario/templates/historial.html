@@ -56,4 +56,38 @@
     </div>
 </div>
 
+<!-- PAGINACIÓN -->
+{% if registros.has_other_pages %}
+<div class="flex justify-center mt-6">
+    <div class="join">
+
+        {% if registros.has_previous %}
+            <a href="?page={{ registros.previous_page_number }}" class="join-item btn btn-sm">«</a>
+        {% else %}
+            <button class="join-item btn btn-sm btn-disabled">«</button>
+        {% endif %}
+
+        {% for num in registros.paginator.page_range %}
+            {% if registros.number == num %}
+                <button class="join-item btn btn-sm btn-primary">{{ num }}</button>
+            {% elif num > registros.number|add:'-3' and num < registros.number|add:'3' %}
+                <a href="?page={{ num }}" class="join-item btn btn-sm">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if registros.has_next %}
+            <a href="?page={{ registros.next_page_number }}" class="join-item btn btn-sm">»</a>
+        {% else %}
+            <button class="join-item btn btn-sm btn-disabled">»</button>
+        {% endif %}
+
+    </div>
+</div>
+
+<p class="text-center text-xs opacity-50 mt-2">
+    Página {{ registros.number }} de {{ registros.paginator.num_pages }}
+    — {{ registros.paginator.count }} registros en total
+</p>
+{% endif %}
+
 {% endblock %}

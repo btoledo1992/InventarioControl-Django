@@ -293,7 +293,10 @@ def eliminar_usuario(request, pk):
 def historial(request):
     if not request.user.is_staff:
         return redirect('dashboard')
-    registros = Historial.objects.select_related('usuario').all()[:50]
+    registros_list = Historial.objects.select_related('usuario').all()
+    paginator = Paginator(registros_list, 20)
+    page = request.GET.get('page', 1)
+    registros = paginator.get_page(page)
     return render(request, 'historial.html', {'registros': registros})
 
 @login_required(login_url='login')
